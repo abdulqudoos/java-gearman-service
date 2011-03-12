@@ -1,4 +1,4 @@
-#summary A basic overview of the JGS project
+#summary A basic overview of the java gearman service API
 #labels Featured
 <wiki:toc max_depth="2" />
 
