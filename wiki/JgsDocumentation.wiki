@@ -1,0 +1,55 @@
+#summary basic documentation for the java-gearman-service project
+#labels Featured
+
+= Introduction =
+
+The Java Gearman Service provides a complete gearman implementation in java. This includes the client, worker, and job server. 
+
+= Standalone Server =
+
+The java-gearman-service jar file doubles as a fully featured gearman server.
+
+*Usage:*
+{{{
+java [jvm options] -jar java-gearman-service-X.Y.Z.jar [server options]
+}}}
+
+== Server Options ==
+The server options will specify the server's system variables and/or tell the server what actions to take. The following is a list of the available options.
+
+<table>
+<tr>
+ <td width=100>*Short Name*</td>
+ <td width=200>*Long Name*</td>
+ <td>*Description*</td>
+</tr>
+<tr>
+ <td>-p <i>PORT</i></td>
+ <td>--port=<i>PORT</i></td>
+ <td>Defines what port number the server will listen on (Default: 4730)</td>
+</tr>
+<tr>
+ <td>-v</td>
+ <td>--version</td>
+ <td>Display the version of java gearman service and exit</td>
+</tr>
+<tr>
+ <td>-?</td>
+ <td>--help</td>
+ <td>Print the help menu and exit</td>
+</tr>
+</table>
+
+== JVM Options ==
+The following is a list of some applicable jvm options.
+
+<table>
+<tr>
+ <td width=150>*Option Name*</td>
+ <td>*Description*</td>
+</tr>
+<tr>
+ <td>-server</td>
+ <td>Use Server HotSpot VM. Must be first option (HotSpot Only)</td>
+</tr>
+</table>
