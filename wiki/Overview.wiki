@@ -3,10 +3,14 @@
 <wiki:toc max_depth="2" />
 
 = Introduction =
+----
 
 The Java Gearman Service provides a complete gearman implementation in java. This includes the client, worker, and job server. 
 
+<br>
+<br>
 = Standalone Server =
+----
 
 The java-gearman-service jar file doubles as a fully featured gearman server.
 
@@ -16,6 +20,7 @@ java [jvm options] -jar java-gearman-service-X.Y.Z.jar [server options]
 }}}
 
 == Server Options ==
+
 The server options will specify the server's system variables and/or tell the server what actions to take. The following is a list of the available options.
 
 <table>
@@ -55,7 +60,10 @@ The following is a list of some applicable jvm options.
 </tr>
 </table>
 
+<br>
+<br>
 = Application Programming Interface =
+----
 
 == Gearman ==
 
