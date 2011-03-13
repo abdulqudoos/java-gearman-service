@@ -14,12 +14,12 @@ The Java Gearman Service provides a complete gearman implementation in java. Thi
 
 The java-gearman-service jar file doubles as a fully featured gearman server.
 
-*Usage:*
+== Usage ==
 {{{
 java [jvm options] -jar java-gearman-service-X.Y.Z.jar [server options]
 }}}
 
-== Server Options ==
+=== Server Options ===
 
 The server options will specify the server's system variables and/or tell the server what actions to take. The following is a list of the available options.
 
@@ -46,7 +46,7 @@ The server options will specify the server's system variables and/or tell the se
 </tr>
 </table>
 
-== JVM Options ==
+=== JVM Options ===
 The following is a list of some applicable jvm options.
 
 <table>
