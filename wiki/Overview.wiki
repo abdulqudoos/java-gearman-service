@@ -51,7 +51,7 @@ The following is a list of some applicable jvm options.
 </tr>
 <tr>
  <td>-server</td>
- <td>Use Server HotSpot VM. Must be first option (HotSpot Only)</td>
+ <td>Use Server !HotSpot VM. Must be first option (!HotSpot Only)</td>
 </tr>
 </table>
 
@@ -61,6 +61,6 @@ The following is a list of some applicable jvm options.
 
 A [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/Gearman.html Gearman] object defines a gearman systems and creates gearman services. These services include [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanWorker.html GearmanWorkers], [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanClient.html GearmanClients], and [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanServer.html GearmanServers]. All services created by the same Gearman object are said to be in the same system, and all services in the same system share system wide thread resources. 
 
-== GearmanClient ==
-== GearmanWorker ==
-== GearmanServer ==
+== !GearmanClient ==
+== !GearmanWorker ==
+== !GearmanServer ==
