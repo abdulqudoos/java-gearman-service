@@ -87,6 +87,58 @@ GearmanServer server = gearman.createGearmanServer();
 == !GearmanClient ==
 [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanClient.html GearmanClient] is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman servers. These jobs are then distributed out to a farm of workers.
 
+{{{
+// Create a GearmanJob
+GearmanJob job = new GearmanJob(funcName, payload) {
+   @Override
+   public void callbackStatus(long numerator, long denominator) {
+      /*
+       * This method is used to send status updates from the worker to the
+       * client while the job is executing
+       */
+   }
+			
+   @Override
+   public void callbackData(byte[] data) {
+      /*
+       * This method is used to send intermediate data from the worker to the
+       * client while the job is executing.  
+       */
+   }
+			
+   @Override
+   public void callbackWarning(byte[] warning) {
+      /*
+       *  This method is used to send warning information from the worker to the
+       *  client while the job is executing.
+       */
+   }
+
+   @Override
+   protected void onComplete(GearmanJobResult result) {
+      /*
+       * This method is called after the worker has completed the job
+       */
+   }
+};
+}}}
+
+{{{
+// Create submition handler
+GearmanSubmitHandler callback = new GearmanSubmitHandler() {
+   @Override
+   public void onComplete(GearmanJob job, SubmitCallbackResult result) {
+      /*
+       * Called after the submission operation has completed
+       */
+   }
+};
+}}}
+
+{{{
+// submit job 
+client.submit(job, callback);
+}}}
 == !GearmanWorker ==
 [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanWorker.html GearmanWorker] is the worker class for the Gearman distributed job system, providing a framework for receiving and serving jobs from a Gearman server.
 
