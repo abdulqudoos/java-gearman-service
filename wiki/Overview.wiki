@@ -69,6 +69,21 @@ The following is a list of some applicable jvm options.
 
 A [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/Gearman.html Gearman] object defines a gearman systems and creates gearman services. These services include [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanWorker.html GearmanWorker]s, [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanClient.html GearmanClient]s, and [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanServer.html GearmanServer]s. All services created by the same Gearman object are said to be in the same system, and all services in the same system share system wide thread resources. 
 
+The following example shows how to create the gearman services:
+{{{
+// Create a new instance of the gearman service provider
+Gearman gearman = new Gearman();
+
+// Create a new client
+GearmanClient client = gearman.createGearmanClient();
+
+// Create a new worker
+GearmanWorker worker = gearman.createGearmanWorker();
+
+//Create a new server
+GearmanServer server = gearman.createGearmanServer();
+}}}
+
 == !GearmanClient ==
 [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanClient.html GearmanClient] is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman servers. These jobs are then distributed out to a farm of workers.
 
