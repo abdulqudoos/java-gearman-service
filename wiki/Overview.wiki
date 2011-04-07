@@ -134,7 +134,8 @@ GearmanJob job = new GearmanJob(funcName, payload) {
    }
 };
 }}}
-
+<br>
+The GearmanSubmitHandler defines what actions will be taken after a job submission completes.
 {{{
 // Create submition handler
 GearmanSubmitHandler callback = new GearmanSubmitHandler() {
