@@ -28,4 +28,4 @@ boolean addServer(InetSocketAddress adrs)
 
 To get the total number of servers, we use the "getServerCount" method.
 
-== {{{ int getServerCount }}} ==
+== <code>int getServerCount()</code> ==
