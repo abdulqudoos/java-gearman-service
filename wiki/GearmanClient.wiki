@@ -29,7 +29,7 @@ _Usage Example_
 private final GearmanClient client = ...
 
 public void addLocalServer(GearmanServer server) {
-   // Add the client to communicate with the local server
+   // Allow the client to communicate with the local server
    client.addServer(server);
 }
 }}}
