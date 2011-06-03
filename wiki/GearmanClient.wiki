@@ -10,7 +10,7 @@ When a job is submitted with a GearmanClient, it's immediately sent to a known j
 
 == Local Communication ==
 
-To communicate with job servers in the local address space, we call the method with the GearmanServer object as an argument. This will allow the framework to pass gearman packets directly to the server.
+To communicate with a job server in the local address space, we call "addServer" with the GearmanServer object as the argument. This will allow the framework to pass packets directly to the server, without network communication.
 
 {{{
 boolean addServer(GearmanServer srvr)
