@@ -14,10 +14,10 @@ To communicate with a job server in the local address space, we call "addServer"
 
 {{{
 /**
- * Specifies that the client may communicate with the server locally.<br>
+ * Adds a local server to the list of servers the client may submit jobs to.<br>
  * 
  * @param srvr
- *    The local job server to communicate with
+ *    The local job server
  * @return
  *    <code>true</code> if and only if the server was added to the list of
  *    servers
@@ -31,9 +31,8 @@ To communicate with a job server over the network, we call "addServer" with a In
 
 {{{
 /**
- * Specifies that the client may communicate with the server locally.<br>
- * The server's location is added to a list. A connection is not made until
- * it's nessary.<br>
+ * Adds the location of a remote job server to the list of servers the client
+ * may submit jobs to<br>
  *
  * @param adrs
  *    The address of the remote job server
