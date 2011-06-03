@@ -34,11 +34,13 @@ public void addLocalServer(GearmanServer server) {
 }
 }}}
 == Remote Communication ==
+
+To submit jobs to job servers on the network, we use the following method.
 {{{
 boolean addServer(InetSocketAddress adrs)
 }}}
 
-To communicate with a job server over the network, we call "addServer" with a InetSocketAddress object representing the server's location.
+This method the given address to the list of servers the client may submit jobs to. Communication with remote job servers are done using the gearman protocol over TCP.
 
 == Get Server Count ==
 {{{
