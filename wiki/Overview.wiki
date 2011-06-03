@@ -98,7 +98,7 @@ client.addServer(new InetSocketAddress(address, port));
 }}}
 
 <br>
-To submit a job, you'll need to create a new [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanJob.html GearmanJob]. The GearmanJob class is an abstract class with the constructor taking a string representing the gearman function name and a byte[] that will be sent to the worker
+To submit a job, you'll need to create a new [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanJob.html GearmanJob]. The GearmanJob class is an abstract class with the constructor taking a string representing the gearman function name and a byte[] that's sent to the worker
 {{{
 // Create a GearmanJob.
 GearmanJob job = new GearmanJob(funcName, payload) {
@@ -135,7 +135,8 @@ GearmanJob job = new GearmanJob(funcName, payload) {
 };
 }}}
 <br>
-The GearmanSubmitHandler defines what actions will be taken after a job submission completes.
+
+Along with the GearmanJob well need to define a GearmanSubmitHandler. The submit method is asynchronous and will not block. The GearmanSubmitHandler will be called after the submit operation completes. This notifies the user if the submit operation was successful or not.
 {{{
 // Create submition handler
 GearmanSubmitHandler callback = new GearmanSubmitHandler() {
@@ -152,6 +153,7 @@ GearmanSubmitHandler callback = new GearmanSubmitHandler() {
 // submit job 
 client.submit(job, callback);
 }}}
+
 == !GearmanWorker ==
 [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanWorker.html GearmanWorker] is the worker class for the Gearman distributed job system, providing a framework for receiving and serving jobs from a Gearman server.
 
