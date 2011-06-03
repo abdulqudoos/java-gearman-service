@@ -13,10 +13,33 @@ The "addServer" method is used to specify what gearman job servers to communicat
 To communicate with a job server in the local address space, we call "addServer" with the GearmanServer object as the argument. This allows the client framework to pass packets directly to the local job server.
 
 {{{
-boolean addServer(GearmanServer srvr)
+/**
+ * Specifies that the client may communicate with the server locally.<br>
+ * 
+ * @param srvr
+ *    The local job server to communicate with
+ * @return
+ *    <code>true</code> if and only if the server was added to the list of
+ *    servers
+ */
+boolean addServer(GearmanServer srvr);
 }}}
 
 == Remote Communication ==
+
+To communicate with a job server over the network, we call "addServer" with a InetSocketAddress object representing the server's location.
+
 {{{
+/**
+ * Specifies that the client may communicate with the server locally.<br>
+ * The server's location is added to a list. A connection is not made until
+ * it's nessary.<br>
+ *
+ * @param adrs
+ *    The address of the remote job server
+ * @return
+ *    <code>true</code> if and only if the address was added to the list of
+ *    servers
+ */
 boolean addServer(InetSocketAddress adrs)
 }}}
