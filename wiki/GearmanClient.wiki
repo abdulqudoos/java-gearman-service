@@ -4,9 +4,9 @@
 
 The GearmanClient is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman job servers. These jobs are then distributed out to a farm of workers.
 
-= Job Servers Communication =
+= Job Server =
 
-The "addServer" method is used to specify what gearman job servers to communicate with. There are two types server communication, local and remote.
+The purpose of a GearmanClient is to submit jobs to gearman job servers. To do this, we need to tell the client what servers it may communicate with.
 
 == Local Communication ==
 
