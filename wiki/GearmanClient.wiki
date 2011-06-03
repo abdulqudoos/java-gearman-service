@@ -4,13 +4,19 @@
 
 The GearmanClient is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman job servers. These jobs are then distributed out to a farm of workers.
 
-= Adding Job Servers =
+= Job Servers Communication =
 
-When a job is submitted with a GearmanClient, it's immediately sent to a known job server. The "addServer" method is used to specify what job servers the client can submit jobs to. 
+When a job is submitted with a GearmanClient, it's immediately sent to a known job server. The "addServer" method is used to specify what job servers the client can submit jobs to.
 
-{{{
-boolean addServer(InetSocketAddress adrs)
-}}}
+== Local Communication ==
+
+To communicate with job servers in the local address space, we call the method with the GearmanServer object as an argument. This will allow the framework to pass gearman packets directly to the server.
+
 {{{
 boolean addServer(GearmanServer srvr)
+}}}
+
+== Network Communication ==
+{{{
+boolean addServer(InetSocketAddress adrs)
 }}}
