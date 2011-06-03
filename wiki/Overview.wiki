@@ -87,6 +87,11 @@ GearmanServer server = gearman.createGearmanServer();
 == !GearmanClient ==
 [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanClient.html GearmanClient] is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman servers. These jobs are then distributed out to a farm of workers.
 
+To successfully submit a job with a GearmanClient we'll need to:
+  # specify what severs the client can submit to jobs to
+  # submit a GearmanJob
+
+=== Specifying 
 <br>
 The client will need to communicate with a job server. To tell the client what job servers it may communicate with, use the [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanJobServerPool.html#addServer%28org.gearman.GearmanServer%29 addServer] method.
 {{{
