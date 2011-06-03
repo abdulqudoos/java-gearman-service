@@ -1,0 +1,16 @@
+#summary GearmanClient Summary
+
+= Introduction =
+
+The GearmanClient is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman job servers. These jobs are then distributed out to a farm of workers.
+
+= Adding Job Servers =
+
+When a job is submitted with a GearmanClient, it's immediately sent to a known job server. The "addServer" method is used to specify what job servers the client can submit jobs to. 
+
+{{{
+boolean addServer(InetSocketAddress adrs)
+}}}
+{{{
+boolean addServer(GearmanServer srvr)
+}}}
