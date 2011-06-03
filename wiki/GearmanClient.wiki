@@ -10,22 +10,39 @@ The "addServer" method is used to specify what gearman job servers to communicat
 
 == Local Communication ==
 
-To communicate with a job server in the local address space, we call "addServer" with the GearmanServer object as the argument. This allows the client framework to pass packets directly to the local job server.
+To submit jobs to servers running in the local address space, we use the following method.
 
 {{{
 boolean addServer(GearmanServer srvr)
 }}}
 
+This method adds a local GearmanServer instance to the list of job servers the client may submit jobs to. Packets are passed directly to jobs servers specified  with this method, lowering latency.
+
+_Paramiters_
+  * srvr: The job server running in the local address space
+
+_Return Value_
+  * true if and only if the local server was added to the list of job servers to submit jobs to
+
+_Usage Example_
+{{{
+private final GearmanClient client = ...
+
+public void addLocalServer(GearmanServer server) {
+   // Add the client to communicate with the local server
+   client.addServer(server);
+}
+}}}
 == Remote Communication ==
-
-To communicate with a job server over the network, we call "addServer" with a InetSocketAddress object representing the server's location.
-
 {{{
 boolean addServer(InetSocketAddress adrs)
 }}}
 
-== Server Count ==
+To communicate with a job server over the network, we call "addServer" with a InetSocketAddress object representing the server's location.
+
+== Get Server Count ==
+{{{
+int getServerCount()
+}}}
 
 To get the total number of servers, we use the "getServerCount" method.
-
-== <code>int getServerCount()</code> ==
