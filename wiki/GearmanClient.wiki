@@ -1,22 +1,19 @@
 #summary GearmanClient Summary
 
-= Introduction =
+= GearmanClient =
 
 The GearmanClient is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman job servers. These jobs are then distributed out to a farm of workers.
 
-= Job Server =
+= Adding Servers =
 
-The purpose of a GearmanClient is to submit jobs to gearman job servers. To do this, we need to tell the client what servers it may communicate with.
+When a client receives a job submission, it will send it to a gearman job server registered with that client. We can communicate with both servers embedded in the local process and servers running over the network.
 
-== Local Communication ==
-
-To submit jobs to servers running in the local address space, we use the following method.
-
+== Local ==
 {{{
 boolean addServer(GearmanServer srvr)
 }}}
 
-This method adds a local GearmanServer instance to the list of job servers the client may submit jobs to. Packets are passed directly to jobs servers specified  with this method, lowering latency.
+Adds a local GearmanServer instance to the list of job servers the client may submit jobs to. Packets are passed directly to jobs servers specified  with this method, lowering the communication latency.
 
 _Paramiters_
   * srvr: The job server running in the local address space
@@ -33,18 +30,75 @@ public void addLocalServer(GearmanServer server) {
    client.addServer(server);
 }
 }}}
-== Remote Communication ==
 
-To submit jobs to job servers on the network, we use the following method.
+== Remote ==
 {{{
 boolean addServer(InetSocketAddress adrs)
 }}}
 
 This method adds the given address to the list of servers the client may submit jobs to. Communication with remote job servers are done using the gearman protocol over a TCP connection.
 
-== Get Server Count ==
+_Paramiters_
+  * adrs: The address of the job server running on the network
+
+_Return Value_
+  * true if and only if the remote server address was added to the list of job servers to submit jobs to
+
+_Usage Example_
+{{{
+private final GearmanClient client = ...
+
+public void addRemoteServer(String host, int port) {
+   // Allow the client to communicate with a remote server
+   client.addServer(new InetSocketAddress(host, port));
+}
+}}}
+
+= Removing Servers =
+
+
+== Local Servers ==
+{{{
+boolean removeServer(GearmanServer srvr)
+}}}
+
+Removes a local GearmanServer instance from the list of job servers the client may communicate with. 
+
+_Paramiters_
+  * srvr: The job server running in the local address space
+
+_Return Value_
+  * true if and only if the local server was removed from the list of job servers.
+
+_Usage Example_
+{{{
+private final GearmanClient client = ...
+
+public void removeLocalServer(GearmanServer server) {
+   // Allow the client to communicate with the local server
+   client.removeServer(server);
+}
+}}}
+
+= Server Count =
 {{{
 int getServerCount()
 }}}
 
-To get the total number of servers, we use the "getServerCount" method.
+This method returns the number of servers the client currently allowed to communicate with.
+
+_Return Value_
+  * The number of servers the client is allowed to communicate with
+
+_Usage Example_
+{{{
+private final GearmanClient client = ...
+
+public void printServerCount() {
+   // get the number of servers
+   int count = client.getServerCount();
+
+   // print the value
+   System.out.println(count);
+}
+}}}
