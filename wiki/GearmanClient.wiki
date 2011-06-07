@@ -1,12 +1,12 @@
 #summary GearmanClient Summary
 
-= GearmanClient =
+= !GearmanClient =
 
-The GearmanClient is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman job servers. These jobs are then distributed out to a farm of workers.
+The !GearmanClient is the client class for the Gearman distributed job system, providing a framework for sending jobs to one or more Gearman job servers. These jobs are then distributed out to a farm of workers.
 
 = Adding Servers =
 
-When a client receives a job submission, the job is sent to one of the gearman job server registered with the client. The can communicate with local and remote servers.
+When a client receives a job submission, the job is sent to one of the gearman job server registered with the client. A !GearmanClient can communicate with both local and remote servers.
 
 == Local ==
 {{{
@@ -56,14 +56,14 @@ public void addRemoteServer(String host, int port) {
 
 = Removing Servers =
 
-At some point we may want a client to stop submitting jobs to a job server. To do this, we remove the job servers from the client's server list.
+At some point a user may want a !GearmanClient to stop submitting jobs to a specific job server. To do this, we remove the job servers from the client's server list.
 
 == Local Servers ==
 {{{
 boolean removeServer(GearmanServer srvr)
 }}}
 
-Removes a local GearmanServer instance from the list of job servers the client may communicate with. 
+This method removes a GearmanServer instance from the client, preventing further job submissions to that server.
 
 _Paramiters_
   * srvr: The job server running in the local address space
@@ -80,7 +80,24 @@ public void removeLocalServer(GearmanServer server) {
    client.removeServer(server);
 }
 }}}
+
 == Remote ==
+
+== All ==
+{{{
+void removeAllServers()
+}}}
+
+Removes all jobs servers from the !GearmanClient. While the client has no registered job server, the client cannot submit jobs.
+
+_Usage Example_
+{{{
+private final GearmanClient client = ...
+...
+// Remove all servers from the client
+client.removeAllServers();
+}}}
+
 = Server Count =
 {{{
 int getServerCount()
