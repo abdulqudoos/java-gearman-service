@@ -56,7 +56,7 @@ public void addRemoteServer(String host, int port) {
 
 = Removing Servers =
 
-To prevent further submissions to some job server, we remove it from the !GearmanClient.
+To prevent further submissions to some job server, we need to remove it from the !GearmanClient.
 
 == Local Servers ==
 {{{
