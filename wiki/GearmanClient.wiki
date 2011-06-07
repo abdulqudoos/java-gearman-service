@@ -36,7 +36,7 @@ public void addLocalServer(GearmanServer server) {
 boolean addServer(InetSocketAddress adrs)
 }}}
 
-This method adds the given address to the list of servers the client may submit jobs to. Communication with remote job servers are done using the gearman protocol over a TCP connection.
+Adds the given address to the list of servers the client may submit jobs to. Communication with remote job servers are done using the gearman protocol over a TCP connection.
 
 _Paramiters_
   * adrs: The address of the job server running on the network
@@ -56,14 +56,14 @@ public void addRemoteServer(String host, int port) {
 
 = Removing Servers =
 
-At some point a user may want a !GearmanClient to stop submitting jobs to a specific job server. To do this, we remove the job servers from the client's server list.
+To prevent further submissions to some job server, we remove it from the !GearmanClient.
 
 == Local Servers ==
 {{{
 boolean removeServer(GearmanServer srvr)
 }}}
 
-This method removes a GearmanServer instance from the client, preventing further job submissions to that server.
+Removes a GearmanServer instance from the client, preventing further submissions to that server.
 
 _Paramiters_
   * srvr: The job server running in the local address space
