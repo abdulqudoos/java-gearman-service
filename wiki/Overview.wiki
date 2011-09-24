@@ -59,6 +59,14 @@ The following is a list of some applicable jvm options.
  <td>Use Server !HotSpot VM. Must be first option (!HotSpot Only)</td>
 </tr>
 </table>
+<br>
+<br>
+<br>
+_Example: starting the standalone server on port 4730_
+{{{
+java -jar java-gearman-service-X.Y.Z.jar
+}}}
+_"X.Y.Z" refers to the version number_
 
 <br>
 <br>
@@ -69,7 +77,7 @@ The following is a list of some applicable jvm options.
 
 A [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/Gearman.html Gearman] object defines a gearman systems and creates gearman services. These services include [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanWorker.html GearmanWorker]s, [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanClient.html GearmanClient]s, and [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanServer.html GearmanServer]s. All services created by the same Gearman object are said to be in the same system, and all services in the same system share system wide thread resources. 
 
-Creating Gearman Services:
+_Example: Creating a gearman instance and gearman services_
 {{{
 // Create a new instance of the gearman service provider
 Gearman gearman = new Gearman();
@@ -91,9 +99,9 @@ To successfully submit a job with a GearmanClient we'll need to:
   # specify what severs the client can submit to jobs to
   # submit a GearmanJob
 
-=== Specifying 
 <br>
 The client will need to communicate with a job server. To tell the client what job servers it may communicate with, use the [http://java-gearman-service.googlecode.com/svn/javadoc/org/gearman/GearmanJobServerPool.html#addServer%28org.gearman.GearmanServer%29 addServer] method.
+
 {{{
 // Add a local server to the set of server's this client can communicate with
 client.addServer(server);
