@@ -160,7 +160,10 @@ final class Interpreter {
 		final String[] args = pkt.trim().split("[ \t]");
 		
 		String args0 = args[0];
-		if(args0!=null) args0 = args0.toUpperCase();
+		if(args0==null || args0.isEmpty())
+			return;
+		else
+			args0 = args0.toUpperCase();
 		
 		switch(args0) {
 		case "WORKERS":
