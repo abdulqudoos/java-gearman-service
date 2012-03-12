@@ -117,7 +117,7 @@ abstract class ClientConnectionController <K, C extends GearmanCallbackResult> e
 		
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<Object> conn) {
-		super.getGearmanLogger().info(Util.toString(conn) + " : IN : " + packet.getPacketType());
+		super.getGearmanLogger().debug(Util.toString(conn) + " : IN : " + packet.getPacketType());
 		
 		switch (packet.getPacketType()) {
 		case JOB_CREATED:

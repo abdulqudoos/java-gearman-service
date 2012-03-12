@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
  * @author isaiah
  */
 abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.ConnectionController<?,?>> implements GearmanJobServerPool {
+	
 	private static final String DEFAULT_CLIENT_ID = "-";
 	
 	public enum ControllerState {
@@ -316,7 +317,7 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 		
 		public boolean sendPacket(GearmanPacket packet, GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback) {
 			if(this.conn==null) return false;
-			this.defaultCallback.logger.info(Util.toString(conn) + " : OUT : " + packet.getPacketType().toString());
+			this.defaultCallback.logger.debug(Util.toString(conn) + " : OUT : " + packet.getPacketType().toString());
 			this.conn.sendPacket(packet, callback==null? this.defaultCallback: new SendCallback(callback));
 			return true;
 		}

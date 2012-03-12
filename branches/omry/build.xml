@@ -33,7 +33,7 @@
 
 	
 	<!-- current version number -->
-	<property name="version" value="0.5.3" />
+	<property name="version" value="svn" />
 	
 	<!-- source directory -->
 	<property name="src" location="src" />
