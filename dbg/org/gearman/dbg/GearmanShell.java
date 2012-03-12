@@ -16,8 +16,10 @@ import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.gearman.core.GearmanCallbackHandler;
 import org.gearman.core.GearmanConnectionHandler;
@@ -180,7 +182,7 @@ public class GearmanShell {
 
 		private final LinkedList<String> args	= new LinkedList<String>();
 		private final Scanner in				= new Scanner(System.in);
-		private final Logger log				= Logger.getLogger("GearmanShell");
+		private final Logger log				= LoggerFactory.getLogger("GearmanShell");
 		private final Object printLock			= new Object();
 		
 		private org.gearman.core.GearmanConnection<?> client;
@@ -227,7 +229,7 @@ public class GearmanShell {
 
 		@Override
 		public void onDisconnect(org.gearman.core.GearmanConnection<Object> conn) {
-			log.log(Level.INFO, "Disconnected");
+			log.info("Disconnected");
 			GearmanShell.this.gcm.shutdown();
 			System.exit(0);
 		}
@@ -236,7 +238,7 @@ public class GearmanShell {
 		public void onPacketReceived(org.gearman.core.GearmanPacket packet,
 				org.gearman.core.GearmanConnection<Object> conn) {
 			
-			log.log(Level.INFO, "Received Packet:\n"+this.packetToString(packet));
+			log.info("Received Packet:\n"+this.packetToString(packet));
 			synchronized(this.printLock) {
 				System.out.print("gearman-client> ");
 			}
@@ -255,7 +257,7 @@ public class GearmanShell {
 			org.gearman.core.GearmanPacket packet;
 			if(command.equals("TEXT")) {
 				if(size==0)
-					log.log(Level.WARNING, "No packet data to send");
+					log.warn("No packet data to send");
 				StringBuffer sb = new StringBuffer();
 				for(int i=0; i<size-1; i++)
 				{
@@ -274,7 +276,7 @@ public class GearmanShell {
 				try{
 					type = org.gearman.core.GearmanPacket.Type.valueOf(command);
 				} catch (IllegalArgumentException iae) {
-					log.log(Level.WARNING, "Unknown packet type");
+					log.warn("Unknown packet type");
 					return;
 				}
 				
@@ -302,7 +304,7 @@ public class GearmanShell {
 						// Should not end up here, the baos does not throw
 						// IOExceptions on writes
 						assert false;
-						log.log(Level.SEVERE, "failed to contruct packet");
+						log.error("failed to contruct packet");
 						return;
 					}
 				}
@@ -312,21 +314,21 @@ public class GearmanShell {
 					packet = new org.gearman.core.GearmanPacket(org.gearman.core.GearmanPacket.Magic.REQ ,type , data);
 				} catch (IllegalArgumentException e) {
 					// On failure, log message
-					log.log(Level.WARNING, "Failed to construct packet: " + e.getMessage());
+					log.error("Failed to construct packet: " + e.getMessage());
 					return;
 				}
 			}
 			
 			
 			
-			log.log(Level.INFO, "Sending Packet:\n"+this.packetToString(packet));
+			log.info("Sending Packet:\n"+this.packetToString(packet));
 			
 			this.client.sendPacket(packet, new GearmanCallbackHandler<GearmanPacket, SendCallbackResult>(){
 
 				@Override
 				public void onComplete(GearmanPacket data, SendCallbackResult result) {
 					if(!result.isSuccessful())
-						log.log(Level.WARNING, "Sending Packet Failed: " + result);
+						log.warn("Sending Packet Failed: " + result);
 				}
 				
 			});

@@ -29,14 +29,17 @@
 	<!-- project name -->
 	<property name="project" value="java-gearman-service" />
 	
+	<property name="classpath" value="lib/slf4j-api-1.6.4.jar:lib/log4j-1.2.16.jar"/>
+
+	
 	<!-- current version number -->
-	<property name="version" value="0.5.1" />
+	<property name="version" value="0.5.3" />
 	
 	<!-- source directory -->
 	<property name="src" location="src" />
 	
 	<!-- build directory -->
-	<property name="build" location="bin" />
+	<property name="build" location="build" />
 	
 	<!-- Javadoc home directory -->
 	<property name="javadoc" location="javadoc" />
@@ -44,8 +47,20 @@
     <!-- Builds the executable jar, creates javadocs, and zips source -->
 	<target name="build-all">
     	<antcall target="jar" />
-	<antcall target="javadoc" />
+		<antcall target="zip-source" />
+		<antcall target="javadoc" />
     </target>
+	
+	<!-- ================================= 
+          target: zip-source              
+         ================================= -->
+    <target name="zip-source" depends="" description="Zips the source code">
+        <zip destfile="${basedir}/${project}-${version}-src.zip" 
+            basedir="${src}"
+            includes="**/*"
+        />
+    </target>
+
 	
 	<!-- Builds the project's executable jar -->
 	<target name="jar" depends="build" description="Builds the project's executable jar">
@@ -55,6 +70,7 @@
 			<fileset file="License.txt" />
 			<manifest>
 				<attribute name="Main-Class" value="org.gearman.Main"/>
+				<attribute name="Class-Path" value="lib/slf4j-api-1.6.4.jar lib/log4j-1.2.16.jar lib/slf4j-log4j12-1.6.4.jar"/>
 			</manifest>
 		</jar>
     </target>
@@ -62,7 +78,7 @@
 	<!-- Creates the javadocs -->
 	<target name="javadoc">
 		<mkdir dir="${javadoc}"/>
-		<javadoc destdir="${javadoc}" sourcepath="${src}" packagenames="org.gearman/*" />
+		<javadoc destdir="${javadoc}" sourcepath="${src}" packagenames="org.gearman/*" classpath="${classpath}" />
 	</target>
 
 	<target name="test">
@@ -72,7 +88,8 @@
 	<!-- Compiles the project -->
 	<target name="build" description="Compiles the project">
 		<mkdir dir="${build}" />
-		<javac destdir="${build}" srcdir="${src}" />
+		<javac destdir="${build}" srcdir="${src}" 
+			classpath="${classpath}"/>
 	</target>
 	
 	<!-- Cleans project folder -->

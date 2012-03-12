@@ -1,16 +1,19 @@
 package echo;
 
+import static org.gearman.GearmanJobResult.workSuccessful;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import static org.gearman.GearmanJobResult.workSuccessful;
-
+import org.apache.log4j.xml.DOMConfigurator;
 import org.gearman.Gearman;
 import org.gearman.GearmanFunction;
 import org.gearman.GearmanJob;
 import org.gearman.GearmanJobResult;
 import org.gearman.GearmanWorker;
 import org.gearman.core.GearmanConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An echo worker receives a string from a job server an immediately returns it.<br>
@@ -26,6 +29,8 @@ import org.gearman.core.GearmanConstants;
  */
 public class EchoWorker implements GearmanFunction {
 	
+	static Logger logger = LoggerFactory.getLogger(EchoWorker.class);
+	
 	/**
 	 * sets up a {@link GearmanWorker} to use the defined {@link GearmanFunction} to
 	 * echo strings.<br?
@@ -36,6 +41,8 @@ public class EchoWorker implements GearmanFunction {
 	 * 		thrown if an IOException is thrown while creating the Gearman object 
 	 */
 	public static void main(String[] args) throws IOException {
+		
+		DOMConfigurator.configure("log4j.xml");
 		
 		/*
 		 *  Create a Gearman instance
@@ -75,7 +82,7 @@ public class EchoWorker implements GearmanFunction {
 	public GearmanJobResult work(GearmanJob job) {
 		
 		// Print the string
-		System.out.println("Echo: "+new String(job.getJobData()));
+		logger.info("Echo: "+new String(job.getJobData()));
 		
 		// Return data to send back to client
 		return workSuccessful(job.getJobData());

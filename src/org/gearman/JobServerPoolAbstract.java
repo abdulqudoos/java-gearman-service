@@ -10,18 +10,20 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import org.gearman.GearmanJobStatus.StatusCallbackResult;
 import org.gearman.GearmanLostConnectionPolicy.Grounds;
 import org.gearman.core.GearmanCallbackHandler;
 import org.gearman.core.GearmanCallbackResult;
 import org.gearman.core.GearmanConnection;
+import org.gearman.core.GearmanConnection.SendCallbackResult;
 import org.gearman.core.GearmanConnectionHandler;
 import org.gearman.core.GearmanPacket;
 import org.gearman.core.GearmanVariables;
-import org.gearman.core.GearmanConnection.SendCallbackResult;
 import org.gearman.util.ByteArray;
+import org.gearman.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A nasty class used to manage multa
@@ -81,18 +83,18 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 	};
 	
 	private static class SendCallback implements GearmanCallbackHandler<GearmanPacket, SendCallbackResult> {
-		private final GearmanLogger logger;
+		private final Logger logger = LoggerFactory.getLogger(SendCallback.class);
+		
 		private final GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback;
 		
-		private SendCallback(GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback, GearmanLogger logger) {
-			this.logger = logger;
+		private SendCallback(GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback) {
 			this.callback = callback;
 		}
 		
 		@Override
 		public void onComplete(GearmanPacket data, SendCallbackResult result) {
 			if(!result.isSuccessful()) {
-				logger.log(Level.WARNING, "");
+				logger.warn("job failed ");
 			}
 			
 			if(callback!=null)
@@ -123,11 +125,11 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 		
 		private final Object lock = new Object();
 		
-		ConnectionController(JobServerPoolAbstract<?> sc, K key, GearmanLogger logger) {
+		ConnectionController(JobServerPoolAbstract<?> sc, K key) {
 			this.key = key;
 			this.sc = sc;
 			
-			this.defaultCallback = new SendCallback(null, logger);
+			this.defaultCallback = new SendCallback(null);
 		}
 		
 		public void onStatusReceived(GearmanPacket packet) {
@@ -152,7 +154,7 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 			this.completeJobStatus(StatusCallbackResult.SUCCESS, jobHandle, isKnown, isRunning, numerator, denominator);
 		}
 		
-		public final GearmanLogger getGearmanLogger() {
+		public final Logger getGearmanLogger() {
 			return this.defaultCallback.logger;
 		}
 		
@@ -182,7 +184,8 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 		
 		@Override
 		public final void onAccept(final GearmanConnection<Object> conn) {
-			this.defaultCallback.logger.log(GearmanLogger.toString(conn) + " : Connected");
+			
+			this.defaultCallback.logger.info("["+conn.getHostAddress() + ":" + conn.getPort() +"]" + " : Connected");
 			
 			synchronized(this.lock) {
 				
@@ -227,7 +230,7 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 					try {
 						conn.close();
 					} catch (IOException e) {
-						this.defaultCallback.logger.log(e);
+						this.defaultCallback.logger.error("Error closing connection", e);
 					}
 				}
 			}
@@ -235,7 +238,7 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 		
 		@Override
 		public final void onDisconnect(final GearmanConnection<Object> conn) {
-			this.defaultCallback.logger.log(GearmanLogger.toString(conn) + " : Disconnected");
+			this.defaultCallback.logger.info("["+conn.getHostAddress() + ":" + conn.getPort() +"]" + " : Disconnected");
 			
 			synchronized(this.lock) {
 				if(!this.isOpen() && !this.isClosePending()) return;
@@ -313,9 +316,8 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 		
 		public boolean sendPacket(GearmanPacket packet, GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback) {
 			if(this.conn==null) return false;
-			
-			this.defaultCallback.logger.log(GearmanLogger.toString(conn) + " : OUT : " + packet.getPacketType().toString());
-			this.conn.sendPacket(packet, callback==null? this.defaultCallback: new SendCallback(callback, this.defaultCallback.logger));
+			this.defaultCallback.logger.info(Util.toString(conn) + " : OUT : " + packet.getPacketType().toString());
+			this.conn.sendPacket(packet, callback==null? this.defaultCallback: new SendCallback(callback));
 			return true;
 		}
 		
@@ -450,7 +452,7 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 						try {
 							this.conn.close();
 						} catch (IOException e) {
-							this.defaultCallback.logger.log(e);
+							this.defaultCallback.logger.error("Error closing connection", e);
 						}
 						this.conn = null;
 					}
@@ -485,7 +487,7 @@ abstract class JobServerPoolAbstract <X extends JobServerPoolAbstract.Connection
 					try {
 						conn.close();
 					} catch (IOException e) {
-						this.defaultCallback.logger.log(e);
+						this.defaultCallback.logger.error("Error closing connection", e);
 					}
 				}
 				

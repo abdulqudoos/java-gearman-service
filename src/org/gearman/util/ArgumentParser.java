@@ -80,7 +80,7 @@ public final class ArgumentParser implements Iterable<ArgumentParser.Option>{
 	 * 		Returns true if the option was added successfully.  Adding a new option will fail if an
 	 * 		option's shortname or longname is already used
 	 */
-	public final boolean addOption(final char shortname, final String longname, boolean takesArgument) {
+	public final void addOption(final char shortname, final String longname, boolean takesArgument) {
 		if(isClosed)
 			throw new java.lang.IllegalStateException("ArgumentParser Closed");
 		
@@ -91,15 +91,13 @@ public final class ArgumentParser implements Iterable<ArgumentParser.Option>{
 		
 		// Check if the short name is already registered
 		if(pos_short<this.optionsShort.size()&&this.optionsShort.get(pos_short).shortname == shortname)
-			return false;
+			throw new IllegalArgumentException("Short name is already registered : " + shortname);
 		// Check if the long name is already registered
 		if(pos_long<this.optionsLong.size()&&this.optionsLong.get(pos_long).longname.equals(longname))
-			return false;
+			throw new IllegalArgumentException("Long name is already registered : " + longname);
 		
 		this.optionsShort.add(pos_short, o);
 		this.optionsLong.add(pos_long, o);
-		
-		return true;
 	}
 	
 	/**

@@ -10,9 +10,10 @@ import org.gearman.GearmanJob.Priority;
 import org.gearman.JobServerPoolAbstract.ConnectionController;
 import org.gearman.core.GearmanCallbackResult;
 import org.gearman.core.GearmanConnection;
-import org.gearman.core.GearmanPacket;
 import org.gearman.core.GearmanConstants;
+import org.gearman.core.GearmanPacket;
 import org.gearman.util.ByteArray;
+import org.gearman.util.Util;
 
 abstract class ClientConnectionController <K, C extends GearmanCallbackResult> extends ConnectionController<K, C> {
 	
@@ -31,8 +32,8 @@ abstract class ClientConnectionController <K, C extends GearmanCallbackResult> e
 	private long responceTimeout = Long.MAX_VALUE;
 	private long idleTimeout = Long.MAX_VALUE;
 	
-	ClientConnectionController(final ClientImpl client, final K key, GearmanLogger logger) {
-		super(client, key, logger);
+	ClientConnectionController(final ClientImpl client, final K key) {
+		super(client, key);
 	}
 	
 	public final void timeoutCheck(long time) {
@@ -116,7 +117,7 @@ abstract class ClientConnectionController <K, C extends GearmanCallbackResult> e
 		
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<Object> conn) {
-		super.getGearmanLogger().log(GearmanLogger.toString(conn) + " : IN : " + packet.getPacketType());
+		super.getGearmanLogger().info(Util.toString(conn) + " : IN : " + packet.getPacketType());
 		
 		switch (packet.getPacketType()) {
 		case JOB_CREATED:
