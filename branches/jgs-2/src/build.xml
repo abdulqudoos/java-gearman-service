@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ======================================================================                                                         
+
+     Java Gearman Service
+         
+     Gearman provides a generic application framework to farm out work to other
+     machines or processes that are better suited to do the work. It allows you
+     to do work in parallel, to load balance processing, and to call functions
+     between languages. It can be used in a variety of applications, from
+     high-availability web sites to the transport of database replication events.
+     In other words, it is the nervous system for how distributed processing
+     communicates.
+                   
+     isaiah.v                                                                
+     ====================================================================== -->
+
+<project name="java-gearman-service" default="build-all" basedir="." >
+	<property name="version" value="0.6" />
+	
+	<property name="build" location="./../builds/${ant.project.name}/${version}" />
+	<property name="build.src" location="${build}/src" />
+	<property name="build.bin" location="${build}/bin" />
+	<property name="build.javadoc" location="${build}/javadoc" />
+	
+	<property name="project.src" location="./src" />
+	
+	<target depends="clean" name="init" >
+		<mkdir dir="${build.src}" />
+		<mkdir dir="${build.bin}" />
+		<mkdir dir="${build.javadoc}" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="${build.src}" />
+		<delete dir="${build.bin}" />
+		<delete dir="${build.javadoc}" />
+	</target>
+	
+	<target depends="init" name="copy">
+		<filter token="project.name" value="${ant.project.name}" />
+		<filter token="project.version" value="${version}" />
+		
+		<copy todir="${build.src}" includeEmptyDirs="false" filtering="true">
+			<fileset dir="${project.src}" includes="**/*.java"/>  
+		</copy>
+		<copy todir="${build.src}" includeEmptyDirs="false" filtering="false">
+			<fileset dir="${project.src}" excludes="**/*.java"/>  
+		</copy>
+	</target>
+	
+	<target depends="copy" name="javadoc">
+		<javadoc destdir="${build.javadoc}" sourcepath="${build.src}" packagenames="org.gearman" />
+	</target>
+	
+	<target depends="copy" name="zip-src">
+		<zip destfile="${build}/${ant.project.name}-${version}-source.zip">
+			<fileset dir="${build.src}" />
+			<fileset file="License.txt" />
+		</zip>
+	</target>
+	
+	<target depends="javadoc" name="zip-javadoc">
+		<zip defaultexcludes="no" destfile="${build}/${ant.project.name}-${version}-javadoc.zip" >
+			<fileset dir="${build.javadoc}" />
+		</zip>
+	</target>
+	
+	<target depends="zip-src, zip-javadoc" name="zip-all" />
+	
+	<target depends="build" name="jar">
+		<jar destfile="${build}/${ant.project.name}-${version}.jar" >
+			<fileset dir="${build.bin}" />
+			<fileset file="License.txt" />
+			<manifest>
+				<attribute name="Main-Class" value="org.gearman.impl.Main"/>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target depends="copy" name="build">
+		<javac destdir="${build.bin}" srcdir="${build.src}" />
+	</target>
+	
+	<target depends="jar, zip-all, javadoc" name="build-all" />
+</project>
