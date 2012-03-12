@@ -144,7 +144,7 @@ class ServerImpl implements GearmanServer, GearmanConnectionHandler<ServerClient
 	
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<ServerClient> conn) {
-		logger.info(Util.toString(conn) + " : IN : " + packet.getPacketType().toString());
+		logger.debug(Util.toString(conn) + " : IN : " + packet.getPacketType().toString());
 		
 		assert packet!=null;
 		assert conn.getAttachment()!=null;
