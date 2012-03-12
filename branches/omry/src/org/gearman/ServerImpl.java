@@ -9,8 +9,11 @@ import org.gearman.core.GearmanCallbackHandler;
 import org.gearman.core.GearmanCodec;
 import org.gearman.core.GearmanConnection;
 import org.gearman.core.GearmanConnectionHandler;
-import org.gearman.core.GearmanPacket;
 import org.gearman.core.GearmanConstants;
+import org.gearman.core.GearmanPacket;
+import org.gearman.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ServerImpl implements GearmanServer, GearmanConnectionHandler<ServerClient>{
 
@@ -23,11 +26,10 @@ class ServerImpl implements GearmanServer, GearmanConnectionHandler<ServerClient
 	private boolean isShutdown = false;
 	private boolean isGearmanCloseOnShutdown = false;
 	
-	private final GearmanLogger logger;
+	private final Logger logger = LoggerFactory.getLogger(ServerImpl.class);
 	
 	public ServerImpl(final Gearman gearman) {
 		this.gearman = gearman;
-		this.logger = GearmanLogger.createGearmanLogger(gearman, this);
 	}
 	
 	public final Set<ServerClient> getClientSet() {
@@ -117,7 +119,7 @@ class ServerImpl implements GearmanServer, GearmanConnectionHandler<ServerClient
 
 	@Override
 	public void onAccept(GearmanConnection<ServerClient> conn) {
-		logger.log(GearmanLogger.toString(conn) + " : Connected");
+		logger.info(Util.toString(conn) + " : Connected");
 		
 		final ServerClient client = new ServerClientImpl(conn, logger);
 		conn.setAttachment(client);
@@ -129,7 +131,7 @@ class ServerImpl implements GearmanServer, GearmanConnectionHandler<ServerClient
 	
 	@Override
 	public void onDisconnect(GearmanConnection<ServerClient> conn) {
-		logger.log(GearmanLogger.toString(conn) + " : Disconnected");
+		logger.info(Util.toString(conn) + " : Disconnected");
 		
 		ServerClient client = conn.getAttachment();
 		if(client!=null) {
@@ -142,7 +144,7 @@ class ServerImpl implements GearmanServer, GearmanConnectionHandler<ServerClient
 	
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<ServerClient> conn) {
-		logger.log(GearmanLogger.toString(conn) + " : IN : " + packet.getPacketType().toString());
+		logger.info(Util.toString(conn) + " : IN : " + packet.getPacketType().toString());
 		
 		assert packet!=null;
 		assert conn.getAttachment()!=null;
@@ -150,7 +152,7 @@ class ServerImpl implements GearmanServer, GearmanConnectionHandler<ServerClient
 		try {
 			this.instructSet.execute(packet, conn.getAttachment());
 		} catch (Exception e) {
-			logger.log(e);
+			logger.error("instructSet.execute error", e);
 		}
 	}
 	
@@ -256,15 +258,5 @@ class ServerImpl implements GearmanServer, GearmanConnectionHandler<ServerClient
 	@SuppressWarnings("unused")
 	private final void printClientSize() {
 		System.out.println(this.clients.size());
-	}
-
-	@Override
-	public void setLoggerID(String loggerId) {
-		this.logger.setLoggerID(loggerId);
-	}
-
-	@Override
-	public String getLoggerID() {
-		return this.logger.getLoggerID();
 	}
 }

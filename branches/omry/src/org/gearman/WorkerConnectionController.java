@@ -7,11 +7,12 @@ import org.gearman.JobServerPoolAbstract.ControllerState;
 import org.gearman.core.GearmanCallbackHandler;
 import org.gearman.core.GearmanCallbackResult;
 import org.gearman.core.GearmanConnection;
-import org.gearman.core.GearmanPacket;
-import org.gearman.core.GearmanConstants;
 import org.gearman.core.GearmanConnection.SendCallbackResult;
+import org.gearman.core.GearmanConstants;
+import org.gearman.core.GearmanPacket;
 import org.gearman.core.GearmanPacket.Magic;
 import org.gearman.util.ByteArray;
+import org.gearman.util.Util;
 
 abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> extends ConnectionController<K,C> {
 
@@ -34,8 +35,8 @@ abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> ex
 	 */
 	private long grabTimeout = Long.MAX_VALUE;
 	
-	WorkerConnectionController(JobServerPoolAbstract<WorkerConnectionController<?,?>> sc, K key, GearmanLogger logger) {
-		super(sc, key, logger);
+	WorkerConnectionController(JobServerPoolAbstract<WorkerConnectionController<?,?>> sc, K key) {
+		super(sc, key);
 	}
 	
 	public final void canDo(final Set<String> funcNames) {		
@@ -175,7 +176,7 @@ abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> ex
 	
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<Object> conn) {
-		super.getGearmanLogger().log(GearmanLogger.toString(conn) + " : IN : " + packet.getPacketType());
+		super.getGearmanLogger().info(Util.toString(conn) + " : IN : " + packet.getPacketType());
 		
 		switch (packet.getPacketType()) {
 		case NOOP:

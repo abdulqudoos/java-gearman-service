@@ -3,9 +3,10 @@ package org.gearman;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.gearman.core.GearmanVariables;
 import org.gearman.util.ArgumentParser;
 import org.gearman.util.ArgumentParser.Option;
@@ -26,6 +27,7 @@ class Main {
 		"   -p PORT   --port=PORT     Defines what port number the server will listen on (Default: 4730)\n" +
 		"   -l LEVEL  --logger=LEVEL  Specifies the logging level (Default: 0)\n" +
 		"   -v        --version       Display the version of java gearman service and exit\n" +
+		"   -f        --log4j conf    Log4j configuration file, defaults to log4j.xml in working directory\n" +		
 		"   -?        --help          Print this help menu and exit";
 	
 	/**
@@ -49,56 +51,58 @@ class Main {
 	public static void main(final String[] args) {
 		try {
 			Main main = new Main(args);
-			Logger logger = getLogger(main);
 			
-			Gearman gearman = new Gearman(logger);
+			Gearman gearman = new Gearman();
 			GearmanServer server = gearman.createGearmanServer();
 			((ServerImpl)server).closeGearmanOnShutdown(true);
 			
 			server.openPort(main.getPort());
 		} catch (Throwable th) {
-			System.err.println(th.getMessage());
+			th.printStackTrace();
 			System.err.println();
 			printHelp(System.err);
 		}
 	}
 	
-	private static final Logger getLogger(Main main) {
-		final Level level;
-		
-		switch(main.getLogger()) {
+	private static final void configureRootLogger(int logLevel) {
+		Logger root = Logger.getRootLogger();
+		Level level = root.getLevel();
+		switch(logLevel) {
 		case 0:
 			level = Level.OFF;
 			break;
 		case 1:
-			level = Level.SEVERE;
+			level = Level.ERROR;
 			break;
 		case 2:
-			level = Level.WARNING;
+			level = Level.WARN;
 			break;
-		default:
+		case 3:
 			level = Level.INFO;
+			break;
+		case 4:
+			level = Level.DEBUG;
+			break;
+		case 5:
+			level = Level.TRACE;
+			break;
 		}
 		
-		final Logger logger = Logger.getAnonymousLogger();
-		logger.setLevel(level);
-		
-		return logger;
+		root.setLevel(level);
 	}
 	
 	private int port = 4730;
-	private int logger = 0;
+	private int logLevel = -1;
 	
 	private Main(final String[] args) {
 		final ArgumentParser ap = new ArgumentParser();
 		
-		boolean t1, t2, t3, t4;
-		t1 = ap.addOption('p', "port", true);
-		t2 = ap.addOption('v', "version", false);
-		t3 = ap.addOption('l', "logger", true);
-		t4 = ap.addOption('?', "help", false);
+		ap.addOption('p', "port", true);
+		ap.addOption('v', "version", false);
+		ap.addOption('l', "logger", true);
+		ap.addOption('f', "log4j", true);
+		ap.addOption('?', "help", false);
 		
-		assert t1&&t2&&t3&&t4;
 		
 		ArrayList<String> arguments = ap.parse(args);
 		if(arguments==null) {
@@ -114,6 +118,7 @@ class Main {
 			printHelp(System.err);
 		}
 		
+		String log4j = null;
 		for(Option op : ap) {
 			switch(op.getShortName()) {
 			case 'p':
@@ -127,9 +132,10 @@ class Main {
 				break;
 			case 'l':
 				try {
-					this.logger = Integer.parseInt(op.getValue());
 					
-					if(logger<0) {
+					logLevel = Integer.parseInt(op.getValue());
+					
+					if(logLevel<0) {
 						System.err.println("Illegal Logging Level");
 						System.err.println();
 						printHelp(System.err);
@@ -140,19 +146,21 @@ class Main {
 					printHelp(System.err);
 				}
 				break;
+			case 'f':
+				log4j = op.getValue();
 			case 'v':
 				printVersion();
 			case 'h':
 				printHelp(System.out);
 			}
 		}
+		
+		DOMConfigurator.configure(log4j != null ? log4j : "log4j.xml");
+		configureRootLogger(logLevel);
+		
 	}
 	
 	private int getPort() {
 		return this.port;
-	}
-	
-	private int getLogger() {
-		return this.logger;
 	}
 }

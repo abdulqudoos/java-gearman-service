@@ -203,16 +203,4 @@ public class GearmanMockServer implements GearmanConnectionHandler<Object>, Gear
 		}
 
 	}
-
-	@Override
-	public void setLoggerID(String loggerId) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public String getLoggerID() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

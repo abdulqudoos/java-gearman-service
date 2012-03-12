@@ -20,8 +20,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.gearman.core.GearmanCallbackHandler;
 import org.gearman.core.GearmanConnectionManager.ConnectCallbackResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class NioReactor {
+	
+	Logger logger = LoggerFactory.getLogger(NioReactor.class);
 	
 	private final AsynchronousChannelGroup asyncChannelGroup;
 	private final ConcurrentHashMap<Integer, AsynchronousServerSocketChannel> ports = new ConcurrentHashMap<Integer, AsynchronousServerSocketChannel>();
@@ -133,6 +137,8 @@ public final class NioReactor {
 	}
 	
 	public synchronized final <A> void openPort(final int port, final SocketHandler<A> handler) throws IOException {
+		
+		logger.info("Listening on port " + port);
 		final AsynchronousServerSocketChannel server = AsynchronousServerSocketChannel.open(this.asyncChannelGroup);
 		server.bind(new InetSocketAddress(port));
 		

@@ -3,17 +3,24 @@ package echo;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import org.apache.log4j.xml.DOMConfigurator;
 import org.gearman.Gearman;
 import org.gearman.GearmanClient;
-import org.gearman.GearmanJob;
-import org.gearman.GearmanJobResult;
 import org.gearman.GearmanClient.GearmanSubmitHandler;
 import org.gearman.GearmanClient.SubmitCallbackResult;
+import org.gearman.GearmanJob;
+import org.gearman.GearmanJobResult;
 import org.gearman.core.GearmanConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EchoClient {
+	
+	static Logger logger = LoggerFactory.getLogger(EchoClient.class);
 
 	public static void main(String[] args) throws IOException {
+		
+		DOMConfigurator.configure("log4j.xml");
 		
 		/*
 		 * Create a Gearman instance
@@ -101,11 +108,11 @@ public class EchoClient {
 				// If the job was successful
 				if(result.isSuccessful()) {
 					// If the job was successful, print the returned string
-					System.out.println(new String(result.getData(),GearmanConstants.UTF_8));
+					logger.info(new String(result.getData(),GearmanConstants.UTF_8));
 				} else {
 					// If the job failed, print that it failed.  A job may fail for a few resins,
 					// but the most likely would be due to failing to send this job to a job server
-					System.err.println("Job execution failed: "+result.getJobCallbackResult().name());
+					logger.error("Job execution failed: "+result.getJobCallbackResult().name());
 				}
 				
 				// We're done, shutdown

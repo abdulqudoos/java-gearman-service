@@ -4,20 +4,21 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 import org.gearman.core.GearmanCallbackHandler;
 import org.gearman.core.GearmanConnection;
-import org.gearman.core.GearmanPacket;
-import org.gearman.core.GearmanConstants;
 import org.gearman.core.GearmanConnection.SendCallbackResult;
+import org.gearman.core.GearmanConstants;
+import org.gearman.core.GearmanPacket;
 import org.gearman.util.ByteArray;
+import org.gearman.util.Util;
+import org.slf4j.Logger;
 
 class ServerClientImpl implements ServerClient {
 
 	private final GearmanConnection<?> conn;
 	
-	private final GearmanLogger logger;
+	private Logger logger;
 	
 	/** The set of all functions that this worker can perform */
 	private final ConcurrentHashMap<ByteArray,ServerFunction> funcMap = new ConcurrentHashMap<ByteArray,ServerFunction>();
@@ -34,7 +35,7 @@ class ServerClientImpl implements ServerClient {
 	
 	private final SendCallback defaultCallback = new SendCallback(null); 
 	
-	public ServerClientImpl(final GearmanConnection<?> conn, GearmanLogger logger) {
+	public ServerClientImpl(final GearmanConnection<?> conn, Logger logger) {
 		this.conn = conn;
 		this.logger = logger;
 	}
@@ -81,7 +82,7 @@ class ServerClientImpl implements ServerClient {
 		
 		try { this.conn.close(); }
 		catch (IOException e) {
-			logger.log(e);
+			logger.error("Error closing connection", e);
 		}
 		
 		synchronized(this.disconnectListeners) {
@@ -195,7 +196,7 @@ class ServerClientImpl implements ServerClient {
 	
 	@Override
 	public void sendPacket(GearmanPacket packet, GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback) {
-		logger.log(GearmanLogger.toString(conn) + " : OUT : " + packet.getPacketType().toString());
+		logger.info(Util.toString(conn) + " : OUT : " + packet.getPacketType().toString());
 		this.conn.sendPacket(packet, callback==null? this.defaultCallback : new SendCallback(callback));
 	}
 	
@@ -240,7 +241,7 @@ class ServerClientImpl implements ServerClient {
 					callback.onComplete(data, result);
 			} finally {
 				if(!result.isSuccessful()) {
-					logger.log(Level.WARNING, GearmanLogger.toString(conn) + " : FAILED TO SEND PACKET : " + data.getPacketType().toString());
+					logger.error(Util.toString(conn) + " : FAILED TO SEND PACKET : " + data.getPacketType().toString());
 				}
 			}
 		}

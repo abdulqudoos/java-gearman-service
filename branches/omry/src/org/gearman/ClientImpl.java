@@ -17,7 +17,7 @@ class ClientImpl extends JobServerPoolAbstract<ClientImpl.InnerConnectionControl
 	protected class InnerConnectionController<K, C extends GearmanCallbackResult> extends ClientConnectionController<K,C> {
 		
 		InnerConnectionController(K key) {
-			super(ClientImpl.this, key, logger);
+			super(ClientImpl.this, key);
 		}
 		
 		@Override
@@ -192,8 +192,6 @@ class ClientImpl extends JobServerPoolAbstract<ClientImpl.InnerConnectionControl
 	/** The set of jobs waiting to be submitted */
 	private final Deque<ClientJobSubmission> jobQueue = new LinkedBlockingDeque<ClientJobSubmission>();
 	
-	private final GearmanLogger logger;
-	
 	ClientImpl(final Gearman gearman) {
 		
 		// Initialize the GearmanJobServerPool
@@ -201,9 +199,6 @@ class ClientImpl extends JobServerPoolAbstract<ClientImpl.InnerConnectionControl
 		
 		// Set the gearman provider
 		this.gearman = gearman;
-		
-		// Set the default loggerID
-		logger = GearmanLogger.createGearmanLogger(gearman, this);
 	}
 
 	@Override
@@ -472,15 +467,5 @@ class ClientImpl extends JobServerPoolAbstract<ClientImpl.InnerConnectionControl
 			super.shutdown();
 			gearman.onServiceShutdown(this);
 		}
-	}
-
-	@Override
-	public void setLoggerID(String loggerId) {
-		this.logger.setLoggerID(loggerId);
-	}
-	
-	@Override
-	public String getLoggerID() {
-		return this.logger.getLoggerID();
 	}
 }
