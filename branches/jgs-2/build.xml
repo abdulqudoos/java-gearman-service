@@ -16,12 +16,16 @@
      ====================================================================== -->
 
 <project name="java-gearman-service" default="build-all" basedir="." >
-	<property name="version" value="0.6" />
+	
+	<!-- The Current Version -->
+	<property name="version" value="0.6 (Dev)" />
 	
 	<property name="build" location="./../builds/${ant.project.name}/${version}" />
 	<property name="build.src" location="${build}/src" />
 	<property name="build.bin" location="${build}/bin" />
 	<property name="build.javadoc" location="${build}/javadoc" />
+	
+	<property name="javac.target" value="1.7" />
 	
 	<property name="project.src" location="./src" />
 	
@@ -74,13 +78,15 @@
 			<fileset file="License.txt" />
 			<manifest>
 				<attribute name="Main-Class" value="org.gearman.impl.Main"/>
+				<attribute name="Project" value="${ant.project.name}"/>
+				<attribute name="Version" value="${version}"/>
 			</manifest>
 		</jar>
 	</target>
 	
 	<target depends="copy" name="build">
-		<javac destdir="${build.bin}" srcdir="${build.src}" />
+		<javac destdir="${build.bin}" srcdir="${build.src}" target="${javac.target}" source="${javac.target}" />
 	</target>
 	
-	<target depends="jar, zip-all, javadoc" name="build-all" />
+	<target depends="jar, zip-all" name="build-all" />
 </project>
