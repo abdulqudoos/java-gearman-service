@@ -8,7 +8,7 @@ package org.gearman.impl.util;
 
 import java.net.InetSocketAddress;
 
-import org.gearman.core.GearmanConnection;
+import org.gearman.impl.core.GearmanConnection;
 
 public class GearmanUtils {
 	

@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.gearman.GearmanJobPriority;
 import org.gearman.GearmanPersistence;
-import org.gearman.core.GearmanPacket;
 import org.gearman.impl.GearmanConstants;
+import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.util.ByteArray;
 import org.gearman.impl.util.EqualsLock;
 

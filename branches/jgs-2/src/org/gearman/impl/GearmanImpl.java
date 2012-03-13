@@ -17,7 +17,7 @@ import org.gearman.GearmanPersistence;
 import org.gearman.GearmanServer;
 import org.gearman.GearmanService;
 import org.gearman.GearmanWorker;
-import org.gearman.core.GearmanConnectionManager;
+import org.gearman.impl.core.GearmanConnectionManager;
 import org.gearman.impl.server.local.GearmanServerLocal;
 import org.gearman.impl.server.remote.GearmanServerRemote;
 import org.gearman.impl.util.Scheduler;

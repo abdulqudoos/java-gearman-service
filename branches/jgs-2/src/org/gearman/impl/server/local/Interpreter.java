@@ -12,10 +12,10 @@ import java.util.Collection;
 import org.gearman.GearmanJobPriority;
 import org.gearman.GearmanPersistable;
 import org.gearman.GearmanPersistence;
-import org.gearman.core.GearmanPacket;
-import org.gearman.core.GearmanPacket.Magic;
-import org.gearman.core.GearmanPacket.Type;
 import org.gearman.impl.GearmanConstants;
+import org.gearman.impl.core.GearmanPacket;
+import org.gearman.impl.core.GearmanPacket.Magic;
+import org.gearman.impl.core.GearmanPacket.Type;
 import org.gearman.impl.util.ByteArray;
 
 

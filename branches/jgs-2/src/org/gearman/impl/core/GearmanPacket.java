@@ -5,7 +5,7 @@
  * the COPYING file in the parent directory for full text.
  */
 
-package org.gearman.core; 
+package org.gearman.impl.core; 
 
 import org.gearman.impl.GearmanConstants;
 

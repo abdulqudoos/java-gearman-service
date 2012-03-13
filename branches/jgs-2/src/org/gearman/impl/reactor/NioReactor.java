@@ -4,7 +4,7 @@
  * the COPYING file in the parent directory for full text.
  */
 
-package org.gearman.reactor;
+package org.gearman.impl.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.gearman.core.GearmanCallbackHandler;
-import org.gearman.core.GearmanConnectionManager.ConnectCallbackResult;
+import org.gearman.impl.core.GearmanCallbackHandler;
+import org.gearman.impl.core.GearmanConnectionManager.ConnectCallbackResult;
 
 /**
  * The connection handler

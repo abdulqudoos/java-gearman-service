@@ -7,12 +7,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.gearman.GearmanJobPriority;
-import org.gearman.core.GearmanCallbackHandler;
-import org.gearman.core.GearmanPacket;
-import org.gearman.core.GearmanConnection.SendCallbackResult;
-import org.gearman.core.GearmanPacket.Magic;
-import org.gearman.core.GearmanPacket.Type;
 import org.gearman.impl.GearmanConstants;
+import org.gearman.impl.core.GearmanCallbackHandler;
+import org.gearman.impl.core.GearmanPacket;
+import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
+import org.gearman.impl.core.GearmanPacket.Magic;
+import org.gearman.impl.core.GearmanPacket.Type;
 import org.gearman.impl.util.ByteArray;
 
 abstract class JobAbstract implements Job, ClientDisconnectListener {
@@ -240,7 +240,7 @@ abstract class JobAbstract implements Job, ClientDisconnectListener {
 		
 		worker.addDisconnectListener(this);
 		
-		worker.sendPacket(this.createJobAssignPacket(), new GearmanCallbackHandler<GearmanPacket, org.gearman.core.GearmanConnection.SendCallbackResult>(){
+		worker.sendPacket(this.createJobAssignPacket(), new GearmanCallbackHandler<GearmanPacket, org.gearman.impl.core.GearmanConnection.SendCallbackResult>(){
 			@Override
 			public void onComplete(GearmanPacket data, SendCallbackResult result) {
 				if(!result.isSuccessful()) 
@@ -257,7 +257,7 @@ abstract class JobAbstract implements Job, ClientDisconnectListener {
 		worker.addDisconnectListener(this);
 		
 		//TODO does not send UniqueID
-		worker.sendPacket(this.createJobAssignUniqPacket(), new GearmanCallbackHandler<GearmanPacket, org.gearman.core.GearmanConnection.SendCallbackResult>(){
+		worker.sendPacket(this.createJobAssignUniqPacket(), new GearmanCallbackHandler<GearmanPacket, org.gearman.impl.core.GearmanConnection.SendCallbackResult>(){
 			@Override
 			public void onComplete(GearmanPacket data, SendCallbackResult result) {
 				if(!result.isSuccessful()) 

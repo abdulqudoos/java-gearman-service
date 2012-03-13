@@ -4,7 +4,7 @@
  * the COPYING file in the parent directory for full text.
  */
 
-package org.gearman.reactor;
+package org.gearman.impl.reactor;
 
 import java.io.IOException;
 import java.net.InetAddress;

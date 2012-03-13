@@ -7,7 +7,7 @@
 package org.gearman.impl.server.local;
 
 import org.gearman.GearmanJobPriority;
-import org.gearman.core.GearmanPacket;
+import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.util.ByteArray;
 
 interface Job {

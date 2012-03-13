@@ -2,9 +2,9 @@ package org.gearman.impl.server.local;
 
 import java.io.IOException;
 
-import org.gearman.core.GearmanCallbackHandler;
-import org.gearman.core.GearmanPacket;
-import org.gearman.core.GearmanConnection.SendCallbackResult;
+import org.gearman.impl.core.GearmanCallbackHandler;
+import org.gearman.impl.core.GearmanPacket;
+import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.util.ByteArray;
 
 

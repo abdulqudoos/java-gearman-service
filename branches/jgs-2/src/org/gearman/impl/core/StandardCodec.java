@@ -4,16 +4,16 @@
  * the COPYING file in the parent directory for full text.
  */
 
-package org.gearman.core;
+package org.gearman.impl.core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 
-import org.gearman.core.GearmanPacket.Magic;
-import org.gearman.core.GearmanPacket.Type;
 import org.gearman.impl.GearmanConstants;
+import org.gearman.impl.core.GearmanPacket.Magic;
+import org.gearman.impl.core.GearmanPacket.Type;
 
 public final class StandardCodec implements GearmanCodec<Integer>{
 

@@ -4,7 +4,7 @@
  * the COPYING file in the parent directory for full text.
  */
 
-package org.gearman.core;
+package org.gearman.impl.core;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,10 +14,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.gearman.core.GearmanConnection.SendCallbackResult;
-import org.gearman.reactor.NioReactor;
-import org.gearman.reactor.SocketHandler;
-import org.gearman.reactor.Socket;
+import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
+import org.gearman.impl.reactor.NioReactor;
+import org.gearman.impl.reactor.Socket;
+import org.gearman.impl.reactor.SocketHandler;
 
 public class GearmanConnectionManager {
 	

@@ -5,11 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.gearman.core.GearmanCallbackHandler;
-import org.gearman.core.GearmanConnection;
-import org.gearman.core.GearmanPacket;
-import org.gearman.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.GearmanConstants;
+import org.gearman.impl.core.GearmanCallbackHandler;
+import org.gearman.impl.core.GearmanConnection;
+import org.gearman.impl.core.GearmanPacket;
+import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.util.ByteArray;
 
 class ClientImpl implements Client {

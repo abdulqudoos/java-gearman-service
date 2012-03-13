@@ -17,13 +17,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 
 import org.gearman.Gearman;
-import org.gearman.core.GearmanCallbackHandler;
-import org.gearman.core.GearmanConnection;
-import org.gearman.core.GearmanConnectionHandler;
-import org.gearman.core.GearmanConnectionManager.ConnectCallbackResult;
-import org.gearman.core.GearmanPacket;
 import org.gearman.impl.GearmanImpl;
 import org.gearman.impl.GearmanConstants;
+import org.gearman.impl.core.GearmanCallbackHandler;
+import org.gearman.impl.core.GearmanConnection;
+import org.gearman.impl.core.GearmanConnectionHandler;
+import org.gearman.impl.core.GearmanPacket;
+import org.gearman.impl.core.GearmanConnectionManager.ConnectCallbackResult;
 import org.gearman.impl.server.GearmanServerInterface;
 
 /**
