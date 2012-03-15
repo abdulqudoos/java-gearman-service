@@ -37,6 +37,22 @@ public interface GearmanClient extends GearmanServerPool {
 	public GearmanJobSubmittal createJobSubmittal(String serverID, byte[] jobHandle);
 	
 	/**
+	 * Sets the maximum number of connections this client may have at any given time
+	 * @param size
+	 * 		The maximum number of connections
+	 * @throws IllegalArgumentException
+	 * 		If size is less than one
+	 */
+	public void setConnectionPoolSize(int size);
+	
+	/**
+	 * Gets the maximum number of connections this client may have at any given time
+	 * @return
+	 * 		The maximum number of connections
+	 */
+	public int getConnectionPoolSize();
+	
+	/**
 	 * Polls for the job status. This is a blocking operation. The current thread may block and wait
 	 * for the operation to complete
 	 * @param submittal

@@ -17,8 +17,8 @@
 
 <project name="java-gearman-service" default="build-all" basedir="." >
 	
-	<!-- The Current Version -->
-	<property name="version" value="0.6 (Dev)" />
+	<!-- Current Project Version -->
+	<property name="version" value="dev-0.6" />
 	
 	<property name="build" location="./../builds/${ant.project.name}/${version}" />
 	<property name="build.src" location="${build}/src" />

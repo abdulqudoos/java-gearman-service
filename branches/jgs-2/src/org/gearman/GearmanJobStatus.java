@@ -15,20 +15,6 @@ import java.io.Serializable;
 public interface GearmanJobStatus extends Serializable {
 	
 	/**
-	 * Returns the job handle assigned by the server when the job was created
-	 * @return
-	 * 		The job handle assigned by the server when the job was created
-	 */
-	public byte[] getJobHandle();
-	
-	/**
-	 * Returns the time of day that the job status response was received (client side)
-	 * @return
-	 * 		The time of day the job status response was received
-	 */
-	public long getResponseTime();
-	
-	/**
 	 * Tests if the server knew the status of the job in question.
 	 * 
 	 * Most job servers will return unknown if it never received the job or

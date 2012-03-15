@@ -6,8 +6,6 @@
 
 package org.gearman;
 
-import java.io.IOException;
-
 /**
  * A callback hander for the operation, {@link GearmanClient#getStatus(GearmanJobSubmittal, GearmanJobStatusCallback)}
  * @author isaiah
@@ -30,5 +28,5 @@ public interface GearmanJobStatusCallback {
 	 * @param ioe
 	 * 		An exception describing why the operation failed 
 	 */
-	public void onFailure(GearmanJobSubmittal submittal, IOException ioe);
+	public void onFailure(GearmanJobSubmittal submittal, GearmanJobStatusFailureType failureType);
 }
