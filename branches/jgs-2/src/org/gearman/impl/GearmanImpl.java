@@ -21,6 +21,7 @@ import org.gearman.impl.core.GearmanConnectionManager;
 import org.gearman.impl.server.local.GearmanServerLocal;
 import org.gearman.impl.server.remote.GearmanServerRemote;
 import org.gearman.impl.util.Scheduler;
+import org.gearman.impl.worker.GearmanWorkerImpl;
 
 /**
  * 
@@ -82,7 +83,9 @@ public final class GearmanImpl extends Gearman {
 	}
 
 	@Override
-	public GearmanServer createGearmanServer(InetSocketAddress address) {
+	public GearmanServer createGearmanServer(String host, int port) {
+		InetSocketAddress address = new InetSocketAddress(host, port);
+		
 		lock.readLock().lock();
 		try {
 			if(this.isShutdown()) {
@@ -100,8 +103,19 @@ public final class GearmanImpl extends Gearman {
 
 	@Override
 	public GearmanWorker createGearmanWorker() {
-		// TODO Auto-generated method stub
-		return null;
+		lock.readLock().lock();
+		try {
+			if(this.isShutdown()) {
+				throw new IllegalStateException("Shutdown Service");
+			}
+			
+			final GearmanWorker worker = new GearmanWorkerImpl(this);
+			this.serviceSet.add(worker);
+			
+			return worker;
+		} finally {
+			lock.readLock().unlock();
+		}
 	}
 
 	@Override
@@ -119,12 +133,12 @@ public final class GearmanImpl extends Gearman {
 	}
 
 	@Override
-	public GearmanServer createGearmanServer(int... ports) throws IOException {
-		return createGearmanServer((GearmanPersistence)null, ports);
+	public GearmanServer createGearmanServer(int port) throws IOException {
+		return createGearmanServer(port, (GearmanPersistence)null);
 	}
 
 	@Override
-	public GearmanServer createGearmanServer(GearmanPersistence persistence, int... ports) throws IOException {
+	public GearmanServer createGearmanServer(int port, GearmanPersistence persistence) throws IOException {
 		lock.readLock().lock();
 		try {
 			if(this.isShutdown()) {
@@ -132,7 +146,7 @@ public final class GearmanImpl extends Gearman {
 			}
 			
 			
-			final GearmanServer server = new GearmanServerLocal(this, persistence, ports);
+			final GearmanServer server = new GearmanServerLocal(this, persistence, port);
 			this.serviceSet.add(server);
 			
 			return server;

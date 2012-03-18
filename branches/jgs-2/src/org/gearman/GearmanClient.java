@@ -8,6 +8,8 @@ package org.gearman;
 
 import java.io.IOException;
 
+import org.gearman.impl.serverpool.GearmanServerPool;
+
 /**
  * The gearman client is used to submit jobs to the job server.
  * @author isaiah

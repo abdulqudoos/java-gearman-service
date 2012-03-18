@@ -8,9 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.gearman.GearmanJobStatusCallback;
 import org.gearman.GearmanJobSubmittal;
+import org.gearman.GearmanLostConnectionGrounds;
 import org.gearman.GearmanLostConnectionPolicy;
 import org.gearman.GearmanJobStatusFailureType;
-import org.gearman.GearmanLostConnectionPolicy.Grounds;
 import org.gearman.impl.GearmanConstants;
 import org.gearman.impl.core.GearmanCallbackHandler;
 import org.gearman.impl.core.GearmanCallbackResult;
@@ -37,7 +37,7 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 	
 	private final Object lock = new Object();
 	
-	ConnectionController(JobServerPoolAbstract<?> sc, K key) {
+	protected ConnectionController(JobServerPoolAbstract<?> sc, K key) {
 		this.key = key;
 		this.sc = sc;
 		
@@ -161,7 +161,7 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 			
 			// If we disconnect from the OPEN state, then we have unexpectedly disconnected
 			this.closeServer();
-			this.onLostConnection(sc.getPolicy(), Grounds.UNEXPECTED_DISCONNECT);
+			this.onLostConnection(sc.getPolicy(), GearmanLostConnectionGrounds.UNEXPECTED_DISCONNECT);
 		}
 	}
 	
@@ -187,7 +187,7 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 				this.dropServer();
 			else {
 				this.closeServer();
-				this.onLostConnection(sc.getPolicy(), Grounds.FAILED_CONNECTION);
+				this.onLostConnection(sc.getPolicy(), GearmanLostConnectionGrounds.FAILED_CONNECTION);
 			}
 		}
 	}
@@ -202,7 +202,7 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 		synchronized(this.lock) {
 			if(this.state.equals(ControllerState.OPEN)) {
 				this.closeServer();
-				this.onLostConnection(sc.getPolicy(), Grounds.UNEXPECTED_DISCONNECT);
+				this.onLostConnection(sc.getPolicy(), GearmanLostConnectionGrounds.UNEXPECTED_DISCONNECT);
 			}
 		}
 	}
@@ -419,7 +419,7 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 	protected abstract void onWait(ControllerState oldState);
 	protected abstract void onNew();
 	
-	protected abstract void onLostConnection(GearmanLostConnectionPolicy policy, Grounds grounds);
+	protected abstract void onLostConnection(GearmanLostConnectionPolicy policy, GearmanLostConnectionGrounds grounds);
 	
 	public final void getStatus(GearmanJobSubmittal submittal, GearmanJobStatusCallback callback) {
 		

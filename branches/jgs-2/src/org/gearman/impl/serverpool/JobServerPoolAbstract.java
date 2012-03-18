@@ -1,5 +1,7 @@
 package org.gearman.impl.serverpool;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -8,28 +10,28 @@ import java.util.concurrent.TimeUnit;
 
 import org.gearman.GearmanLostConnectionPolicy;
 import org.gearman.GearmanServer;
-import org.gearman.GearmanServerPool;
 import org.gearman.impl.GearmanImpl;
 import org.gearman.impl.core.GearmanPacket;
+import org.gearman.impl.server.GearmanServerInterface;
 
 /**
  * A nasty class used to manage multa
  * 
  * @author isaiah
  */
-abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> implements GearmanServerPool {
+public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> implements GearmanServerPool {
 	static final String DEFAULT_CLIENT_ID = "-";
 	
 	private final GearmanImpl gearman;
 	
-	final ConcurrentHashMap<Object, X> connMap = new ConcurrentHashMap<Object,X>();
+	final ConcurrentHashMap<GearmanServerInterface, X> connMap = new ConcurrentHashMap<GearmanServerInterface,X>();
 	private final GearmanLostConnectionPolicy defaultPolicy;
 	private GearmanLostConnectionPolicy policy;;
 	private long waitPeriod;
 	private boolean isShutdown = false;
 	private String id = JobServerPoolAbstract.DEFAULT_CLIENT_ID;
 	
-	JobServerPoolAbstract(GearmanImpl gearman, GearmanLostConnectionPolicy defaultPolicy, long waitPeriod, TimeUnit unit) {
+	protected JobServerPoolAbstract(GearmanImpl gearman, GearmanLostConnectionPolicy defaultPolicy, long waitPeriod, TimeUnit unit) {
 		this.defaultPolicy = defaultPolicy;
 		this.policy = defaultPolicy;
 		this.waitPeriod = unit.toNanos(waitPeriod);
@@ -38,10 +40,15 @@ abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> imple
 	
 	@Override
 	public boolean addServer(GearmanServer srvr) {
+		if(!(srvr instanceof GearmanServerInterface))
+			throw new IllegalArgumentException("Unsupported GearmanServer Implementation: " + srvr.getClass().getCanonicalName());
+		
+		GearmanServerInterface key = (GearmanServerInterface)srvr;
+		
 		if(this.isShutdown) throw new IllegalStateException("In Shutdown State");
 		
-		final X x = this.createController(srvr);
-		if(this.connMap.putIfAbsent(srvr, x)==null) {
+		final X x = this.createController(key);
+		if(this.connMap.putIfAbsent(key, x)==null) {
 			x.onNew();
 			return true;
 		} else {
@@ -140,7 +147,7 @@ abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> imple
 		this.removeAllServers();
 	}
 	
-	protected Map<Object,X> getConnections() {
+	protected Map<GearmanServerInterface,X> getConnections() {
 		return Collections.unmodifiableMap(this.connMap);
 	}
 	
@@ -150,6 +157,12 @@ abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> imple
 	
 	protected GearmanLostConnectionPolicy getPolicy() {
 		return this.policy;
+	}
+
+	@Override
+	public Collection<GearmanServer> getServers() {
+		Collection<GearmanServer> value = new ArrayList<GearmanServer>(this.connMap.keySet());
+		return value;
 	}
 	
 	/**
@@ -161,5 +174,5 @@ abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> imple
 	 * @return
 	 * 		
 	 */
-	protected abstract X createController(GearmanServer key);
+	protected abstract X createController(GearmanServerInterface key);
 }

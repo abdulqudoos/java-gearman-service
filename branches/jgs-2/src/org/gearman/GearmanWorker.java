@@ -6,7 +6,9 @@
 
 package org.gearman;
 
+import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Gearman Worker is responsible for executing jobs it receives from the Job
@@ -16,7 +18,7 @@ import java.util.Set;
  * generated or as a job's state changes, the worker passes this information
  * back to the Job Server.
  */
-public interface GearmanWorker extends GearmanServerPool {
+public interface GearmanWorker extends GearmanService{
 
     /**
      * Sets the maximum number of jobs that can execute at a given time
@@ -81,5 +83,69 @@ public interface GearmanWorker extends GearmanServerPool {
      * Unregisters all{@link GearmanFunction} from the worker. The effect of
      * which is that the worker will not execute any new jobs.
      */
-    public void removeAll();
+    public void removeAllFunctions();
+    
+    /**
+	 * Adds a {@link GearmanServer} to the service.<br>
+	 * <br>
+	 * Note: connections are not made to the server at this time. A connection is only established when needed
+	 * @param server
+	 * 		The gearman server to add
+	 * @return
+	 * 		<code>true</code> if the server was added to the service
+	 */
+	public boolean addServer(GearmanServer server);
+	
+	/**
+	 * Returns the default reconnect period
+	 * @param unit
+	 * 		The time unit
+	 * @return
+	 * 		The about of time before the service attempts to reconnect to a disconnected server
+	 */
+	public long getReconnectPeriod(TimeUnit unit);
+	
+	/**
+	 * Returns the number of servers managed by this service
+	 * @return
+	 * 		The number of servers managed by this service
+	 */
+	public int getServerCount();
+	
+	/**
+	 * Removes all servers from this service
+	 */
+	public void removeAllServers();
+	
+	public boolean removeServer(GearmanServer server);
+	public void setClientID(String id);
+	public String getClientID();
+	public boolean hasServer(GearmanServer server);
+	
+	/**
+	 * Returns the collection of servers this service is managing
+	 * @return
+	 * 		The collection of servers this service is managing
+	 */
+	public Collection<GearmanServer> getServers();
+	
+	/**
+	 * Sets the {@link GearmanLostConnectionPolicy}. The lost connection policy describes
+	 * what should be done in the event that the server unexpectedly disconnects
+	 * @param policy
+	 * 		The policy for handling unexpected disconnects
+	 */
+	public void setLostConnectionPolicy(GearmanLostConnectionPolicy policy);
+	
+	/**
+	 * Sets the default reconnect period. When a connection is unexpectedly disconnected, the
+	 * will wait a period of time before attempting to reconnect unless otherwise specified
+	 * by the {@link GearmanLostConnectionPolicy}
+	 * @param time
+	 * 		The amount of time before a reconnect is attempted unless otherwise specified
+	 * 		by the {@link GearmanLostConnectionPolicy}
+	 * @param unit
+	 * 		The time unit
+	 */
+	public void setReconnectPeriod(long time, TimeUnit unit);
 }

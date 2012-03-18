@@ -7,7 +7,6 @@
 package org.gearman;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 /**
  * A <code>Gearman</code> object defines a gearman systems and creates gearman
@@ -62,7 +61,7 @@ public abstract class Gearman implements GearmanService{
 	 * @throws IOException
 	 * 		If an IO exception occurs while attempting to open any of the given ports
 	 */
-	public abstract GearmanServer createGearmanServer(int... ports) throws IOException;
+	public abstract GearmanServer createGearmanServer(int port) throws IOException;
 	
 	/**
 	 * Creates a new local gearman job server running in the current address space. 
@@ -76,7 +75,7 @@ public abstract class Gearman implements GearmanService{
 	 * @throws IOException
 	 * 		If an IO exception occurs while attempting to open any of the given ports
 	 */
-	public abstract GearmanServer createGearmanServer(GearmanPersistence persistence, int... ports) throws IOException;
+	public abstract GearmanServer createGearmanServer(int port, GearmanPersistence persistence) throws IOException;
 	
 	/**
 	 * Creates an object representing a remote gearman job server
@@ -85,7 +84,7 @@ public abstract class Gearman implements GearmanService{
 	 * @return
 	 * 		An object representing a remote gearman job server
 	 */
-	public abstract GearmanServer createGearmanServer(InetSocketAddress address);
+	public abstract GearmanServer createGearmanServer(String host, int port);
 	
 	/**
 	 * Creates a new gearman worker

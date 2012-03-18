@@ -6,9 +6,6 @@
 
 package org.gearman;
 
-import java.io.Serializable;
-import java.net.InetSocketAddress;
-
 /**
  * Specifies what to do when a job server unexpectedly disconnects or a service cannot connect
  * to a job server.
@@ -17,29 +14,6 @@ import java.net.InetSocketAddress;
  *
  */
 public interface GearmanLostConnectionPolicy {
-	
-	/**
-	 * Defines why a method is being called
-	 * @author isaiah
-	 *
-	 */
-	public static enum Grounds implements Serializable {
-		
-		/**
-		 * The server in question unexpectedly disconnected.
-		 */
-		UNEXPECTED_DISCONNECT,
-		
-		/**
-		 * The gearman service failed to connect to a server registed with the service  
-		 */
-		FAILED_CONNECTION,
-		
-		/** 
-		 * The connection was closed due to a server failing to respond
-		 */
-		RESPONSE_TIMEOUT,
-	};
 	
 	/**
 	 * Called when a gearman service fails to connect to a remote job server or is unexpectedly
@@ -57,7 +31,7 @@ public interface GearmanLostConnectionPolicy {
 	 * @return
 	 * 		An {@link Action} telling the gearman service what actions to take
 	 */
-	public GearmanLostConnectionAction lostRemoteServer(InetSocketAddress adrs, GearmanServerPool service, Grounds grounds);
+	public GearmanLostConnectionAction lostRemoteServer(GearmanServer server, GearmanLostConnectionGrounds grounds);
 	
 	/**
 	 * Called when a gearman service fails to connect to a local job server or is unexpectedly
@@ -75,5 +49,5 @@ public interface GearmanLostConnectionPolicy {
 	 * @param grounds
 	 * 		The grounds for calling this method
 	 */
-	public void lostLocalServer(GearmanServer server, GearmanServerPool service, Grounds grounds);
+	public void lostLocalServer(GearmanServer server, GearmanLostConnectionGrounds grounds);
 }
