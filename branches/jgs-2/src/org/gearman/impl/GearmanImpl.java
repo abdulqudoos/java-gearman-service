@@ -30,6 +30,12 @@ import org.gearman.impl.worker.GearmanWorkerImpl;
  */
 public final class GearmanImpl extends Gearman {
 	
+	/*
+	 * TODO add a weak/soft reference mechanism for GearmanService object held by
+	 * this class and for functions
+	 */
+	
+	
 	private final GearmanConnectionManager connectionManager;
 	private final Scheduler scheduler;
 	
@@ -153,5 +159,20 @@ public final class GearmanImpl extends Gearman {
 		} finally {
 			lock.readLock().unlock();
 		}
+	}
+	
+	public void onServiceShutdown(GearmanService service) {
+		lock.readLock().lock();
+		try {
+			if(this.isShutdown()) return;
+			this.serviceSet.remove(service);
+		} finally {
+			lock.readLock().unlock();
+		}
+	}
+
+	@Override
+	public GearmanServer createGearmanServer() throws IOException {
+		return createGearmanServer(GearmanConstants.PORT);
 	}
 }

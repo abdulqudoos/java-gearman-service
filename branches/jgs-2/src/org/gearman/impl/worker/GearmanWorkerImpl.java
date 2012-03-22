@@ -100,18 +100,18 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 				// TODO log error
 			}
 			
-			if(server.isLocalServer()) {
-				policy.lostLocalServer(server, grounds);
+			if(server.isShutdown()) {
+				return;
 			} else {
 				GearmanLostConnectionAction action; 
 				try {
-					action = policy.lostRemoteServer(server, grounds);
+					action = policy.lostConnection(server, grounds);
 				} catch (Throwable t) {
 					action = null;
 				}
 				
 				if(action==null) {
-					action = GearmanWorkerImpl.super.getDefaultPolicy().lostRemoteServer(super.getKey(), grounds);
+					action = GearmanWorkerImpl.super.getDefaultPolicy().lostConnection(super.getKey(), grounds);
 				} 
 				
 				switch(action) {
@@ -172,13 +172,6 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 	protected WorkerConnectionController<?,?> createController(GearmanServerInterface key) {
 		return new InnerConnectionController(key);
 	}
-
-	/*
-	@Override
-	protected WorkerConnectionController<?,?> createController(InetSocketAddress key) {
-		return new RemoteConnectionController(key);
-	}
-	*/
 
 	@Override
 	public GearmanFunction addFunction(String name, GearmanFunction function) {
@@ -275,7 +268,7 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 	@Override
 	public void shutdown() {
 		super.shutdown();
-		//TODO gearman.onServiceShutdown(this);
+		this.getGearman().onServiceShutdown(this);
 	}
 
 	@Override
@@ -284,5 +277,11 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 			this.funcMap.clear();
 			if(this.future!=null) future.cancel(false);
 		}
+	}
+	
+	@Override
+	public void finalize() throws Throwable {
+		super.finalize();
+		this.shutdown();
 	}
 }

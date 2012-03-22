@@ -1,6 +1,7 @@
 package org.gearman.impl.worker;
 
 import java.util.Set;
+import java.util.logging.Level;
 
 import org.gearman.GearmanFunction;
 import org.gearman.GearmanJob;
@@ -15,6 +16,7 @@ import org.gearman.impl.data.GearmanJobImpl;
 import org.gearman.impl.serverpool.ConnectionController;
 import org.gearman.impl.serverpool.ControllerState;
 import org.gearman.impl.serverpool.JobServerPoolAbstract;
+import org.gearman.impl.util.GearmanUtils;
 
 abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> extends ConnectionController<K,C> {
 
@@ -94,7 +96,6 @@ abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> ex
 					public void onComplete(GearmanPacket data, SendCallbackResult result) {
 						if(!result.isSuccessful())
 							WorkerConnectionController.this.getDispatcher().done();
-						
 					}
 					
 				});
@@ -110,43 +111,48 @@ abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> ex
 		this.grabTimeout = Long.MAX_VALUE;
 		this.toDispatcher();
 		
-		try {
-			
-			final byte[] jobHandle = packet.getArgumentData(0);
-			final String name = new String(packet.getArgumentData(1),GearmanConstants.CHARSET);
-			final byte[] jobData = packet.getArgumentData(2);
-			
-			// Get function logic
-			final GearmanFunction func = this.getWorker().getFunction(name);
-			
-			if(func==null) {
-				// Lookup failed. This can happen if the function is
-				// unregistered after the GRAB_JOB packet is sent
-				// but before this lookup is performed.
+		this.getWorker().getGearman().getScheduler().execute(new Runnable() {
 
-				// send WORK_FAIL
-				sendPacket(GearmanPacket.createWORK_FAIL(Magic.REQ, jobHandle),null);
-				return;
+			@Override
+			public void run() {
+				try {
+					final byte[] jobHandle = packet.getArgumentData(0);
+					final String name = new String(packet.getArgumentData(1),GearmanConstants.CHARSET);
+					final byte[] jobData = packet.getArgumentData(2);
+					
+					// Get function logic
+					final GearmanFunction func = getWorker().getFunction(name);
+					
+					if(func==null) {
+						// Lookup failed. This can happen if the function is
+						// unregistered after the GRAB_JOB packet is sent
+						// but before this lookup is performed.
+
+						// send WORK_FAIL
+						sendPacket(GearmanPacket.createWORK_FAIL(Magic.REQ, jobHandle),null);
+						return;
+					}
+								
+					// Create job for function
+					//final GearmanJob job = new WorkerJob(name, jobData,this,jobHandle_BA);
+					final GearmanJob job = new GearmanJobImpl(name, jobData);
+					final GearmanFunctionCallbackImpl<K,C> callback = new GearmanFunctionCallbackImpl<>(jobHandle, WorkerConnectionController.this);
+					
+					// Run function
+					try {
+						final byte[] result = func.work(job, callback);
+						callback.success(result==null? new byte[]{} : result);
+					} catch(Throwable e) {
+						//TODO log message
+						callback.fail();
+					}
+					
+				} finally {
+					getDispatcher().done();
+				}
 			}
-						
-			// Create job for function
-			//final GearmanJob job = new WorkerJob(name, jobData,this,jobHandle_BA);
-			final GearmanJob job = new GearmanJobImpl(name, jobData);
-			final GearmanFunctionCallbackImpl<K,C> callback = new GearmanFunctionCallbackImpl<>(jobHandle, this);
 			
-			// Run function
-			try {
-				final byte[] result = func.work(job, callback);
-				callback.success(result==null? new byte[]{} : result);
-			} catch(Throwable e) {
-				//TODO log message
-				callback.fail();
-			}
-			
-		} finally {
-			// Tell dispatcher of completeness
-			this.getDispatcher().done();
-		}
+		});
 	}
 	
 	private final void noJob(final GearmanConnection<?> conn) {
@@ -181,7 +187,7 @@ abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> ex
 	
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<Object> conn) {
-		// TODO super.getGearmanLogger().log(GearmanLogger.toString(conn) + " : IN : " + packet.getPacketType());
+		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn)+ " : IN : " + packet.getPacketType());
 		
 		switch (packet.getPacketType()) {
 		case NOOP:

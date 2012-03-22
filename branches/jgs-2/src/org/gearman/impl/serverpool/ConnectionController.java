@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import org.gearman.GearmanJobStatusCallback;
 import org.gearman.GearmanJobSubmittal;
@@ -19,6 +20,7 @@ import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.core.GearmanConnectionHandler;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.util.ByteArray;
+import org.gearman.impl.util.GearmanUtils;
 import org.gearman.impl.util.ValuePair;
 
 public abstract class ConnectionController <K, C extends GearmanCallbackResult> implements GearmanConnectionHandler<Object>, GearmanCallbackHandler<K,C> {
@@ -92,7 +94,7 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 	
 	@Override
 	public final void onAccept(final GearmanConnection<Object> conn) {
-		// TODO log this.defaultCallback.logger.log(GearmanLogger.toString(conn) + " : Connected");
+		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn) + " : Connected");
 		
 		synchronized(this.lock) {
 			
@@ -145,7 +147,7 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 	
 	@Override
 	public final void onDisconnect(final GearmanConnection<Object> conn) {
-		// TODO log this.defaultCallback.logger.log(GearmanLogger.toString(conn) + " : Disconnected");
+		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn) + " : Disconnected");
 		
 		synchronized(this.lock) {
 			if(!this.isOpen() && !this.isClosePending()) return;
@@ -222,9 +224,9 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 	}
 	
 	public boolean sendPacket(GearmanPacket packet, GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback) {
-		if(this.conn==null) return false;
+		if(this.conn==null || conn.isClosed()) return false;
 		
-		// TODO log this.defaultCallback.logger.log(GearmanLogger.toString(conn) + " : OUT : " + packet.getPacketType().toString());
+		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn) + " : OUT : " + packet.getPacketType().toString());
 		this.conn.sendPacket(packet, callback==null? this.defaultCallback: new SendCallback(callback));
 		return true;
 	}
@@ -418,7 +420,6 @@ public abstract class ConnectionController <K, C extends GearmanCallbackResult> 
 	protected abstract void onDrop(ControllerState oldState);
 	protected abstract void onWait(ControllerState oldState);
 	protected abstract void onNew();
-	
 	protected abstract void onLostConnection(GearmanLostConnectionPolicy policy, GearmanLostConnectionGrounds grounds);
 	
 	public final void getStatus(GearmanJobSubmittal submittal, GearmanJobStatusCallback callback) {

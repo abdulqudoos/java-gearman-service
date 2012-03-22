@@ -51,6 +51,8 @@ public abstract class Gearman implements GearmanService{
 	 */
 	public abstract String getVersion();
 	
+	public abstract GearmanServer createGearmanServer() throws IOException;
+	
 	/**
 	 * Creates a new local gearman job server running in the current address space. 
 	 * @param ports

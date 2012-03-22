@@ -31,7 +31,7 @@ public interface GearmanLostConnectionPolicy {
 	 * @return
 	 * 		An {@link Action} telling the gearman service what actions to take
 	 */
-	public GearmanLostConnectionAction lostRemoteServer(GearmanServer server, GearmanLostConnectionGrounds grounds);
+	public GearmanLostConnectionAction lostConnection(GearmanServer server, GearmanLostConnectionGrounds grounds);
 	
 	/**
 	 * Called when a gearman service fails to connect to a local job server or is unexpectedly
@@ -49,5 +49,5 @@ public interface GearmanLostConnectionPolicy {
 	 * @param grounds
 	 * 		The grounds for calling this method
 	 */
-	public void lostLocalServer(GearmanServer server, GearmanLostConnectionGrounds grounds);
+	public void shutdownServer(GearmanServer server);
 }

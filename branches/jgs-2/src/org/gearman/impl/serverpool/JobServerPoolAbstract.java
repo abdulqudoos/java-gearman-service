@@ -13,13 +13,14 @@ import org.gearman.GearmanServer;
 import org.gearman.impl.GearmanImpl;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.server.GearmanServerInterface;
+import org.gearman.impl.server.ServerShutdownListener;
 
 /**
  * A nasty class used to manage multa
  * 
  * @author isaiah
  */
-public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> implements GearmanServerPool {
+public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> implements GearmanServerPool, ServerShutdownListener {
 	static final String DEFAULT_CLIENT_ID = "-";
 	
 	private final GearmanImpl gearman;
@@ -163,6 +164,12 @@ public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>
 	public Collection<GearmanServer> getServers() {
 		Collection<GearmanServer> value = new ArrayList<GearmanServer>(this.connMap.keySet());
 		return value;
+	}
+	
+	@Override
+	public void onShutdown(GearmanServerInterface server) {
+		this.removeServer(server);
+		this.policy.shutdownServer(server);
 	}
 	
 	/**

@@ -16,7 +16,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 
-import org.gearman.Gearman;
 import org.gearman.impl.GearmanImpl;
 import org.gearman.impl.GearmanConstants;
 import org.gearman.impl.core.GearmanCallbackHandler;
@@ -25,6 +24,7 @@ import org.gearman.impl.core.GearmanConnectionHandler;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.core.GearmanConnectionManager.ConnectCallbackResult;
 import org.gearman.impl.server.GearmanServerInterface;
+import org.gearman.impl.server.ServerShutdownListener;
 
 /**
  * A object representing a remote gearman server
@@ -49,6 +49,8 @@ public class GearmanServerRemote implements GearmanServerInterface {
 	
 	/** A variable indicating if this GearmanServerRemote is shutdown */
 	private boolean isShutdown = false;
+	
+	private final Set<ServerShutdownListener> listeners = new HashSet<>();
 	
 	/**
 	 * Constructor
@@ -95,6 +97,11 @@ public class GearmanServerRemote implements GearmanServerInterface {
 			}
 		}
 		
+		for(ServerShutdownListener l : listeners) {
+			l.onShutdown(this);
+		}
+		
+		this.getGearman().onServiceShutdown(this);
 	}
 
 	@Override
@@ -103,7 +110,7 @@ public class GearmanServerRemote implements GearmanServerInterface {
 	}
 
 	@Override
-	public Gearman getGearman() {
+	public GearmanImpl getGearman() {
 		return this.gearman;
 	}
 
@@ -205,4 +212,19 @@ public class GearmanServerRemote implements GearmanServerInterface {
 	public Collection<Integer> getPorts() {
 		return Collections.singleton(adrs.getPort());
 	}
+
+	@Override
+	public void addShutdownListener(ServerShutdownListener listener) {
+		synchronized(this.listeners) {
+			this.listeners.add(listener);
+		}
+	}
+
+	@Override
+	public void removeShutdownListener(ServerShutdownListener listener) {
+		synchronized(this.listeners) {
+			this.listeners.remove(listener);
+		}
+	}
+	
 }

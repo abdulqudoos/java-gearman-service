@@ -6,13 +6,13 @@ import org.gearman.GearmanLostConnectionPolicy;
 import org.gearman.GearmanServer;
 
 class GearmanLostConnectionPolicyImpl implements GearmanLostConnectionPolicy {
-
-	@Override
-	public GearmanLostConnectionAction lostRemoteServer(GearmanServer server, GearmanLostConnectionGrounds grounds) {
-		return GearmanLostConnectionAction.RECONNECT;
-	}
 	
 	@Override
-	public void lostLocalServer(GearmanServer server, GearmanLostConnectionGrounds grounds) {
+	public GearmanLostConnectionAction lostConnection(GearmanServer server, GearmanLostConnectionGrounds grounds) {
+		return GearmanLostConnectionAction.RECONNECT;
+	}
+
+	@Override
+	public void shutdownServer(GearmanServer server) {
 	}
 }

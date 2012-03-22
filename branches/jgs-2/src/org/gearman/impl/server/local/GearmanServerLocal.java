@@ -11,7 +11,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 
-import org.gearman.Gearman;
 import org.gearman.GearmanPersistence;
 import org.gearman.impl.GearmanImpl;
 import org.gearman.impl.GearmanConstants;
@@ -21,6 +20,7 @@ import org.gearman.impl.core.GearmanConnectionHandler;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.core.GearmanConnectionManager.ConnectCallbackResult;
 import org.gearman.impl.server.GearmanServerInterface;
+import org.gearman.impl.server.ServerShutdownListener;
 import org.gearman.impl.util.GearmanUtils;
 
 public class GearmanServerLocal implements GearmanServerInterface, GearmanConnectionHandler<Client> {
@@ -38,6 +38,8 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 	private final String hostName;
 	
 	private boolean isShutdown = false;
+	
+	private final Set<ServerShutdownListener> listeners = new HashSet<>();
 	
 	public GearmanServerLocal(GearmanImpl gearman, GearmanPersistence persistence, int...ports) throws IOException {
 		this(gearman, persistence, createID(ports), ports);
@@ -100,9 +102,20 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 	public void shutdown() {
 		try {
 			this.lock.writeLock().lock();
+			this.isShutdown = true;
 		} finally {
 			this.lock.writeLock().unlock();
 		}
+		
+		for(Client client : clients) {
+			client.close();
+		}
+		
+		for(ServerShutdownListener l : listeners) {
+			l.onShutdown(this);
+		}
+		
+		this.getGearman().onServiceShutdown(this);
 	}
 
 	@Override
@@ -111,7 +124,7 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 	}
 
 	@Override
-	public Gearman getGearman() {
+	public GearmanImpl getGearman() {
 		return this.gearman;
 	}
 
@@ -152,6 +165,11 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 		} finally {
 			this.lock.readLock().unlock();
 		}
+	}
+	
+	@Override
+	public void finalize() throws Throwable {
+		this.shutdown();
 	}
 	
 	private static final class LocalConnection<X,Y> implements GearmanConnection<X> {
@@ -297,4 +315,19 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 			this.clients.remove(conn.getAttachment());
 		}
 	}
+
+	@Override
+	public void addShutdownListener(ServerShutdownListener listener) {
+		synchronized(this.listeners) {
+			this.listeners.add(listener);
+		}
+	}
+
+	@Override
+	public void removeShutdownListener(ServerShutdownListener listener) {
+		synchronized(this.listeners) {
+			this.listeners.remove(listener);
+		}
+	}
+	
 }
