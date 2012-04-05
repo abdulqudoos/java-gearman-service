@@ -4,7 +4,12 @@
  * the COPYING file in the parent directory for full text.
  */
 
-package org.gearman;
+package org.gearman.impl.serverpool;
+
+import org.gearman.GearmanClient;
+import org.gearman.GearmanJobStatus;
+import org.gearman.GearmanJobStatusFailureType;
+import org.gearman.impl.util.ByteArray;
 
 /**
  * A callback hander for the operation, {@link GearmanClient#getStatus(GearmanJobSubmittal, GearmanJobStatusCallback)}
@@ -19,7 +24,7 @@ public interface GearmanJobStatusCallback {
 	 * @param status
 	 * 		The returned job status
 	 */
-	public void onSuccess(GearmanJobSubmittal submittal, GearmanJobStatus status);
+	public void onSuccess(ByteArray jobHandle, GearmanJobStatus status);
 	
 	/**
 	 * Called on a failed operation.
@@ -28,5 +33,5 @@ public interface GearmanJobStatusCallback {
 	 * @param ioe
 	 * 		An exception describing why the operation failed 
 	 */
-	public void onFailure(GearmanJobSubmittal submittal, GearmanJobStatusFailureType failureType);
+	public void onFailure(ByteArray jobHandle, GearmanJobStatusFailureType failureType);
 }

@@ -8,7 +8,6 @@ package org.gearman;
 
 /**
  * The interface used by the {@link GearmanFunction} to send data back to the client mid-process.
- * This is the worker-side equivalent to the {@link GearmanJobHandler}
  * @author isaiah
  */
 public interface GearmanFunctionCallback {
@@ -31,7 +30,7 @@ public interface GearmanFunctionCallback {
 	 * @param data
 	 *            Information to send on the data callback channel
 	 */
-	public void callbackWarning(byte[] warning);
+	public void sendWarning(byte[] warning);
 	
 	/**
 	 * The data callback channel.<br>
@@ -50,7 +49,7 @@ public interface GearmanFunctionCallback {
 	 * @param data
 	 *            Information to send on the data callback channel
 	 */
-	public abstract void callbackData(byte[] data);
+	public abstract void sendData(byte[] data);
 	
 	/**
 	 * Updates the client of the job progress.<br>
@@ -72,5 +71,5 @@ public interface GearmanFunctionCallback {
 	 * 		A number typically specifying the denominator in the fraction work that's
 	 * 		completed
 	 */
-	public abstract void callbackStatus(long numerator, long denominator);
+	public abstract void sendStatus(long numerator, long denominator);
 }

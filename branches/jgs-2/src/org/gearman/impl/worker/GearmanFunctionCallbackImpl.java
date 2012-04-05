@@ -18,19 +18,19 @@ class GearmanFunctionCallbackImpl <K, C extends GearmanCallbackResult> implement
 	}
 
 	@Override
-	public synchronized void callbackWarning(byte[] warning) {
+	public synchronized void sendWarning(byte[] warning) {
 		if(this.isComplete()) throw new IllegalStateException("Job has completed");
 		wcc.sendPacket(GearmanPacket.createWORK_WARNING(Magic.REQ, jobHandle, warning), null /*TODO*/);
 	}
 
 	@Override
-	public synchronized void callbackData(byte[] data) {
+	public synchronized void sendData(byte[] data) {
 		if(this.isComplete()) throw new IllegalStateException("Job has completed");		
 		wcc.sendPacket(GearmanPacket.createWORK_DATA(Magic.REQ, jobHandle, data), null /*TODO*/);
 	}
 
 	@Override
-	public synchronized void callbackStatus(long numerator, long denominator) {
+	public synchronized void sendStatus(long numerator, long denominator) {
 		if(this.isComplete()) throw new IllegalStateException("Job has completed");
 		wcc.sendPacket(GearmanPacket.createWORK_STATUS(Magic.REQ, jobHandle, numerator, denominator), null /*TODO*/);
 	}

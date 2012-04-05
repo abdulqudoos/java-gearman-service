@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import org.gearman.GearmanFunction;
-import org.gearman.GearmanJob;
 import org.gearman.impl.GearmanConstants;
 import org.gearman.impl.core.GearmanCallbackHandler;
 import org.gearman.impl.core.GearmanCallbackResult;
@@ -12,7 +11,7 @@ import org.gearman.impl.core.GearmanConnection;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.core.GearmanPacket.Magic;
-import org.gearman.impl.data.GearmanJobImpl;
+import org.gearman.impl.data.GearmanJob;
 import org.gearman.impl.serverpool.ConnectionController;
 import org.gearman.impl.serverpool.ControllerState;
 import org.gearman.impl.serverpool.JobServerPoolAbstract;
@@ -135,12 +134,12 @@ abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> ex
 								
 					// Create job for function
 					//final GearmanJob job = new WorkerJob(name, jobData,this,jobHandle_BA);
-					final GearmanJob job = new GearmanJobImpl(name, jobData);
+					final GearmanJob job = new GearmanJob(name, jobData);
 					final GearmanFunctionCallbackImpl<K,C> callback = new GearmanFunctionCallbackImpl<>(jobHandle, WorkerConnectionController.this);
 					
 					// Run function
 					try {
-						final byte[] result = func.work(job, callback);
+						final byte[] result = func.work(job.getFunctionName(), job.getData(), callback);
 						callback.success(result==null? new byte[]{} : result);
 					} catch(Throwable e) {
 						//TODO log message

@@ -6,7 +6,15 @@ import java.io.Serializable;
  * An object used to 
  * @author isaiah
  */
-public interface GearmanPersistable extends GearmanJob, Serializable {
+public interface GearmanPersistable extends Serializable {
+	
+	public String getFunctionName();
+	
+	/**
+	 * The job data
+	 * @return
+	 */
+	public byte[] getData();
 	
 	/**
 	 * The job handle defined by the gearman server

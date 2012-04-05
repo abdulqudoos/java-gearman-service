@@ -7,45 +7,13 @@
 package org.gearman;
 
 import java.io.IOException;
-
-import org.gearman.impl.serverpool.GearmanServerPool;
+import java.util.Collection;
 
 /**
  * The gearman client is used to submit jobs to the job server.
  * @author isaiah
  */
-public interface GearmanClient extends GearmanServerPool {
-	
-	/**
-	 * A factory method for creating {@link GearmanJob} objects.
-	 * @param function
-	 * 		The function name
-	 * @param data
-	 * 		The function data
-	 * @return
-	 * 		A new {@link GearmanJob} instance
-	 */
-	public GearmanJob createJob(String function, byte[] data);
-	
-	/**
-	 * A factory method for creating {@link GearmanJobSubmittal} objects
-	 * @param serverID
-	 * 		The server ID
-	 * @param jobHandle
-	 * 		The job handle
-	 * @return
-	 * 		A new {@link GearmanJobSubmittal} object
-	 */
-	public GearmanJobSubmittal createJobSubmittal(String serverID, byte[] jobHandle);
-	
-	/**
-	 * Sets the maximum number of connections this client may have at any given time
-	 * @param size
-	 * 		The maximum number of connections
-	 * @throws IllegalArgumentException
-	 * 		If size is less than one
-	 */
-	public void setConnectionPoolSize(int size);
+public interface GearmanClient extends GearmanService {
 	
 	/**
 	 * Gets the maximum number of connections this client may have at any given time
@@ -65,139 +33,179 @@ public interface GearmanClient extends GearmanServerPool {
 	 * @throws IOException
 	 * 		If an I/O exception occurs while performing this operation 
 	 */
-	public GearmanJobStatus getStatus(GearmanJobSubmittal submittal) throws IOException;
+	public GearmanJobStatus getStatus(byte[] jobHandle) throws IOException;
 	
 	/**
-	 * Polls for the job status. This is a non-blocking operation. The current thread will <i>not</i>
-	 * wait for the operation to complete
-	 * @param submittal
-	 * 		The {@link GearmanJobSubmittal} containing the information needed to query the correct
-	 * 		server for the correct job
-	 * @param callback
-	 * 		The callback object used to notify the user of operations result  
-	 */
-	public void getStatus(GearmanJobSubmittal submittal, GearmanJobStatusCallback callback);
-	
-	/**
-	 * Submits a background job. Background jobs are queued in the job server but are disjoint from
-	 * the client. The result is not needed on the client side.<br>
-	 * <br>
-	 * This is a blocking operation. The current thread may block and
-	 * wait for the operation to complete.
-	 * @param job
-	 * 		The job to submit.
+	 * Sends a job to a registered job server.
+	 * @param functionName
+	 * 		gearman function name
+	 * @param data
+	 * 		gearman job data
 	 * @return
-	 * 		A {@link GearmanJobSubmittal} used to identify the job
-	 * @throws IOException
-	 * 		If an I/O exception occurs while performing this operation
+	 * 		The job return used to poll result data
 	 */
-	public GearmanJobSubmittal submitBackgroundJob(GearmanJob job) throws IOException;
+	public GearmanJobReturn submitJob(String functionName, byte[] data);
 	
 	/**
-	 * Submits a background job. Background jobs are queued in the job server but are disjoint from
-	 * the client. The result is not needed on the client side.<br>
-	 * <br>
-	 * This is a blocking operation. The current thread may block and wait for the operation to complete.
-	 * @param job
-	 * 		The job to submit
+	 * Sends a job to a registered job server.
+	 * @param functionName
+	 * 		gearman function name
+	 * @param data
+	 * 		gearman job data
 	 * @param priority
-	 * 		The priority of the job submitted
+	 * 		gearman job priority
 	 * @return
-	 * 		A {@link GearmanJobSubmittal} used to identify the job
-	 * @throws IOException
-	 * 		If an I/O exception occurs while performing this operation
+	 * 		The job return used to poll result data
 	 */
-	public GearmanJobSubmittal submitBackgroundJob(GearmanJob job, GearmanJobPriority priority) throws IOException;
+	public GearmanJobReturn submitJob(String functionName, byte[] data, GearmanJobPriority priority);
 	
 	/**
-	 * Submits a background job. Background jobs are queued in the job server but are disjoint from
-	 * the client. The result is not needed on the client side.<br>
-	 * <br>
-	 * This is a non-blocking operation. The current thread will <i>not</i> wait for the operation
-	 * to complete.
-	 * @param job
-	 * 		The job to submit
-	 * @param callback
-	 * 		The callback object used to notify the user of operations result
-	 */
-	public void submitBackgroundJob(GearmanJob job, GearmanSubmitCallback callback);
-	
-	/**
-	 * Submits a background job. Background jobs are queued in the job server but are disjoint from
-	 * the client. The result is not needed on the client side.<br>
-	 * <br>
-	 * This is a non-blocking operation. The current thread will <i>not</i> wait for the operation
-	 * to complete.
-	 * @param job
-	 * 		The job to submit
-	 * @param callback
-	 * 		The callback object used to notify the user of operations result
-	 * @param priority
-	 * 		The job's priority
-	 */
-	public void submitBackgroundJob(GearmanJob job, GearmanSubmitCallback callback, GearmanJobPriority priority);
-	
-	/**
-	 * Submits a job. Non-background jobs are attached to a client. The result and any intermediate
-	 * data will received by the client.<br>
-	 * <br>
-	 * This is a blocking operation. The current thread may block and wait for the operation to complete.
-	 * @param job
-	 * 		The job to submit
-	 * @param handler
-	 * 		A callback object for receiving data from the worker
+	 * Submits a background job to a registered job server
+	 * @param functionName
+	 * 		gearman function name
+	 * @param data
+	 * 		gearman job data
 	 * @return
-	 * 		A {@link GearmanJobSubmittal} used to identify the job
-	 * @throws IOException
-	 * 		If an I/O exception occurs while performing this operation
+	 * 		The job return used to poll submit status
 	 */
-	public GearmanJobSubmittal submitJob(GearmanJob job, GearmanJobHandler handler) throws IOException;
+	public GearmanJobReturn submitBackgroundJob(String functionName, byte[] data);
 	
 	/**
-	 * Submits a job. Non-background jobs are attached to a client. The result and any intermediate
-	 * data will received by the client.<br>
-	 * <br>
-	 * This is a blocking operation. The current thread may block and wait for the operation to complete.
-	 * @param job
-	 * 		The job to submit
-	 * @param handler
-	 * 		A callback object for receiving data from the worker
+	 * Submits a background job to a registered job server
+	 * @param functionName
+	 * 		gearman function name
+	 * @param data
+	 * 		gearman job data
 	 * @param priority
-	 * 		The job's priority
+	 * 		gearman job priority
 	 * @return
-	 * 		A {@link GearmanJobSubmittal} used to identify the job
-	 * @throws IOException
-	 * 		If an I/O exception occurs while performing this operation
+	 * 		The job return used to poll submit status
 	 */
-	public GearmanJobSubmittal submitJob(GearmanJob job, GearmanJobHandler handler, GearmanJobPriority priority) throws IOException;
+	public GearmanJobReturn submitBackgroundJob(String functionName, byte[] data, GearmanJobPriority priority);
 	
 	/**
-	 * Submits a job. Non-background jobs are attached to a client. The result and any intermediate
-	 * data will received by the client.<br>
-	 * <br>
-	 * This is a non-blocking operation. The current thread will <i>not</i> wait for the operation
-	 * @param job
-	 * 		The job to submit
-	 * @param handler
-	 * 		A callback object for receiving data from the worker
+	 * Sends a job to a registered job server.
+	 * @param functionName
+	 * 		gearman function name
+	 * @param data
+	 * 		gearman job data
+	 * @param attachment
+	 * 		attachment used to identify the job with the callback class
 	 * @param callback
-	 * 		The callback object used to notify the user of operations result
+	 * 		asynchronous callback class used to receive result data
 	 */
-	public void submitJob(GearmanJob job, GearmanJobHandler handler, GearmanSubmitCallback callback);
+	public <A> void submitJob(String functionName, byte[] data, A attachment, GearmanJobEventCallback<A> callback);
 	
 	/**
-	 * Submits a job. Non-background jobs are attached to a client. The result and any intermediate
-	 * data will received by the client.<br>
-	 * <br>
-	 * This is a non-blocking operation. The current thread will <i>not</i> wait for the operation
-	 * @param job
-	 * 		The job to submit
-	 * @param handler
-	 * 		A callback object for receiving data from the worker
-	 * @param callback
-	 * 		The callback object used to notify the user of operations result
+	 * Sends a job to a registered job server.
+	 * @param functionName
+	 * 		gearman function name
+	 * @param data
+	 * 		gearman job data
 	 * @param priority
-	 * 		The job's priority
+	 * 		gearman job priority
+	 * @param attachment
+	 * 		attachment used to identify the job with the callback class
+	 * @param callback
+	 * 		asynchronous callback class used to receive result data
 	 */
-	public void submitJob(GearmanJob job, GearmanJobHandler handler, GearmanSubmitCallback callback, GearmanJobPriority priority);
+	public <A> void submitJob(String functionName, byte[] data, GearmanJobPriority priority, A attachment, GearmanJobEventCallback<A> callback);
+	
+	/**
+	 * Submits a background job to a registered job server
+	 * @param functionName
+	 * 		gearman function name
+	 * @param data
+	 * 		gearman job data
+	 * @param attachment
+	 * 		attachment used to identify the job with the callback class
+	 * @param callback
+	 * 		asynchronous callback class used to receive result data
+	 */
+	public <A> void submitBackgroundJob(String functionName, byte[] data, A attachment, GearmanJobEventCallback<A> callback);
+	
+	/**
+	 * Submits a background job to a registered job server
+	 * @param functionName
+	 * 		gearman function name
+	 * @param data
+	 * 		gearman job data
+	 * @param priority
+	 * 		gearman job priority
+	 * @param attachment
+	 * 		attachment used to identify the job with the callback class
+	 * @param callback
+	 * 		asynchronous callback class used to receive result data
+	 */
+	public <A> void submitBackgroundJob(String functionName, byte[] data, GearmanJobPriority priority, A attachment, GearmanJobEventCallback<A> callback);
+	
+	/**
+	 * Adds a {@link GearmanServer} to the service.<br>
+	 * <br>
+	 * Note: connections are not made to the server at this time. A connection is only established when needed
+	 * @param server
+	 * 		The gearman server to add
+	 * @return
+	 * 		<code>true</code> if the server was added to the service
+	 */
+	public boolean addServer(GearmanServer server);
+	
+	/**
+	 * Returns the number of servers managed by this service
+	 * @return
+	 * 		The number of servers managed by this service
+	 */
+	public int getServerCount();
+	
+	/**
+	 * Removes all servers from this service
+	 */
+	public void removeAllServers();
+	
+	/**
+	 * Removes the given server from the list of available server to
+	 * @param server
+	 * 		The server to remove
+	 * @return
+	 * 		<code>true</code> if the service contained the given server and it was successfully removed. <code>false</code> if the service did not contain the given server
+	 */
+	public boolean removeServer(GearmanServer server);
+	
+	/**
+	 * Sets the client ID
+	 * @param id
+	 * 		the new client ID
+	 */
+	public void setClientID(String id);
+	
+	/**
+	 * Gets the current client ID
+	 * @return
+	 * 		The current client ID
+	 */
+	public String getClientID();
+	
+	/**
+	 * Tests if this client has the given server
+	 * @param server
+	 * 		The given server
+	 * @return
+	 * 		<code>true</code> if this client contains the given server
+	 */
+	public boolean hasServer(GearmanServer server);
+	
+	/**
+	 * Returns the collection of servers this service is managing
+	 * @return
+	 * 		The collection of servers this service is managing
+	 */
+	public Collection<GearmanServer> getServers();
+	
+	/**
+	 * Sets the {@link GearmanLostConnectionPolicy}. The lost connection policy describes
+	 * what should be done in the event that the server unexpectedly disconnects
+	 * @param policy
+	 * 		The policy for handling unexpected disconnects
+	 */
+	public void setLostConnectionPolicy(GearmanLostConnectionPolicy policy);
 }

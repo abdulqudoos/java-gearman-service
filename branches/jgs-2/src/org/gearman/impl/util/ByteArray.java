@@ -12,7 +12,7 @@ import java.util.Arrays;
 import org.gearman.impl.GearmanConstants;
 
 /**
- * Immutable byte array
+ * Almost Immutable byte array
  * @author isaiah
  */
 public final class ByteArray {
