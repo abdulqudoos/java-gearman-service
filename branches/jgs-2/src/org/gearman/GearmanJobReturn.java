@@ -31,7 +31,7 @@ public interface GearmanJobReturn {
 	public GearmanJobEvent poll(long timeout, TimeUnit unit) throws InterruptedException;
 	
 	/**
-	 * Polls the next job event, or returns <code>null</code> if no event is available
+	 * Polls the next job event. <code>null</code> is returned if no event is available
 	 * @return
 	 * 		The next job event or <code>null</code> if no event is available.
 	 */

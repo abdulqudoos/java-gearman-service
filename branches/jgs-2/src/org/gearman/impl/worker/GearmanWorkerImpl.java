@@ -13,12 +13,11 @@ import org.gearman.GearmanLostConnectionPolicy;
 import org.gearman.GearmanServer;
 import org.gearman.GearmanWorker;
 import org.gearman.impl.GearmanImpl;
-import org.gearman.impl.core.GearmanConnectionManager.ConnectCallbackResult;
 import org.gearman.impl.server.GearmanServerInterface;
 import org.gearman.impl.serverpool.ControllerState;
-import org.gearman.impl.serverpool.JobServerPoolAbstract;
+import org.gearman.impl.serverpool.AbstractJobServerPool;
 
-public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionController<?,?>> implements GearmanWorker {
+public class GearmanWorkerImpl extends AbstractJobServerPool<WorkerConnectionController> implements GearmanWorker {
 	
 	private static final long HEARTBEAT_PERIOD = 20000000000L;
 	
@@ -31,7 +30,8 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 		@Override
 		public void run() {
 			final long time = System.currentTimeMillis();
-			for(WorkerConnectionController<?,?> cc : GearmanWorkerImpl.super.getConnections().values()) {
+			
+			for(WorkerConnectionController cc : GearmanWorkerImpl.super.getConnections().values()) {
 				switch(cc.getState()) {
 				case CONNECTING:
 					// If connecting, nothing to do until a connection is established
@@ -52,7 +52,7 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 		}
 	}
 	
-	private class InnerConnectionController extends WorkerConnectionController<GearmanServerInterface, ConnectCallbackResult> {
+	private class InnerConnectionController extends WorkerConnectionController {
 		
 		private final class Reconnector implements Runnable {
 			@Override
@@ -89,12 +89,12 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 		}
 
 		@Override
-		protected void onConnect(ControllerState oldState) {
+		public void onConnect(ControllerState oldState) {
 			super.getKey().createGearmanConnection(this, this);
 		}
 
 		@Override
-		protected void onLostConnection(GearmanLostConnectionPolicy policy, GearmanLostConnectionGrounds grounds) {
+		public void onLostConnection(GearmanLostConnectionPolicy policy, GearmanLostConnectionGrounds grounds) {
 			GearmanServer server = this.getKey();
 			if(server==null) {
 				// TODO log error
@@ -128,22 +128,22 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 		}
 
 		@Override
-		protected void onDrop(ControllerState oldState) {
+		public void onDrop(ControllerState oldState) {
 			// No cleanup required
 		}
 
 		@Override
-		protected void onNew() {
+		public void onNew() {
 			if(!GearmanWorkerImpl.this.funcMap.isEmpty()) {
 				super.openServer(false);
 			}
 		}
 
 		@Override
-		protected void onClose(ControllerState oldState) { }
+		public void onClose(ControllerState oldState) { }
 
 		@Override
-		protected void onWait(ControllerState oldState) { }
+		public void onWait(ControllerState oldState) { }
 	}
 	
 	private final class FunctionInfo {
@@ -169,7 +169,7 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 	}
 
 	@Override
-	protected WorkerConnectionController<?,?> createController(GearmanServerInterface key) {
+	protected WorkerConnectionController createController(GearmanServerInterface key) {
 		return new InnerConnectionController(key);
 	}
 
@@ -193,8 +193,9 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 			this.isConnected = true;
 			
 			this.future = super.getGearman().getScheduler().scheduleAtFixedRate(this.heartbeat, HEARTBEAT_PERIOD, HEARTBEAT_PERIOD, TimeUnit.NANOSECONDS);
-			for(WorkerConnectionController<?,?> w : super.getConnections().values()) {
-				w.openServer(false);
+			
+			for(WorkerConnectionController cc : GearmanWorkerImpl.super.getConnections().values()) {
+				cc.openServer(false);
 			}
 			
 			return null;
@@ -234,12 +235,13 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 			if(this.funcMap.isEmpty()) {
 				this.isConnected = false;
 				if(this.future!=null) future.cancel(false);
-				for(WorkerConnectionController<?,?> conn : super.getConnections().values()) {
-					conn.closeServer();
+				
+				for(WorkerConnectionController cc : GearmanWorkerImpl.super.getConnections().values()) {
+					cc.closeServer();
 				}
 			} else {
-				for(WorkerConnectionController<?,?> conn : super.getConnections().values()) {
-					conn.cantDo(functionName);
+				for(WorkerConnectionController cc : GearmanWorkerImpl.super.getConnections().values()) {
+					cc.cantDo(functionName);
 				}
 			}
 			return true;
@@ -254,10 +256,6 @@ public class GearmanWorkerImpl extends JobServerPoolAbstract<WorkerConnectionCon
 	@Override
 	public void removeAllServers() {
 		
-		/*
-		 * TODO As of right now, when a worker has no function, connections are immediately closed.
-		 * I'd like to see them timeoutt. This way if the user adds 
-		 */
 		synchronized(this.funcMap) {
 			if(this.future!=null) future.cancel(false);
 		}

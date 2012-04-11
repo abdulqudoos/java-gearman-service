@@ -3,7 +3,7 @@ package org.gearman.impl.serverpool;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -20,19 +20,19 @@ import org.gearman.impl.server.ServerShutdownListener;
  * 
  * @author isaiah
  */
-public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>> implements GearmanServerPool, ServerShutdownListener {
+public abstract class AbstractJobServerPool <X extends AbstractConnectionController> implements GearmanServerPool, ServerShutdownListener {
 	static final String DEFAULT_CLIENT_ID = "-";
 	
 	private final GearmanImpl gearman;
 	
-	final ConcurrentHashMap<GearmanServerInterface, X> connMap = new ConcurrentHashMap<GearmanServerInterface,X>();
+	private final ConcurrentHashMap<GearmanServerInterface, X> connMap = new ConcurrentHashMap<GearmanServerInterface, X>();
 	private final GearmanLostConnectionPolicy defaultPolicy;
 	private GearmanLostConnectionPolicy policy;;
 	private long waitPeriod;
 	private boolean isShutdown = false;
-	private String id = JobServerPoolAbstract.DEFAULT_CLIENT_ID;
+	private String id = AbstractJobServerPool.DEFAULT_CLIENT_ID;
 	
-	protected JobServerPoolAbstract(GearmanImpl gearman, GearmanLostConnectionPolicy defaultPolicy, long waitPeriod, TimeUnit unit) {
+	protected AbstractJobServerPool(GearmanImpl gearman, GearmanLostConnectionPolicy defaultPolicy, long waitPeriod, TimeUnit unit) {
 		this.defaultPolicy = defaultPolicy;
 		this.policy = defaultPolicy;
 		this.waitPeriod = unit.toNanos(waitPeriod);
@@ -48,13 +48,8 @@ public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>
 		
 		if(this.isShutdown) throw new IllegalStateException("In Shutdown State");
 		
-		final X x = this.createController(key);
-		if(this.connMap.putIfAbsent(key, x)==null) {
-			x.onNew();
-			return true;
-		} else {
-			return false;
-		}
+		X x = this.createController(key);
+		return this.connMap.putIfAbsent(key, x)==null;
 	}
 	
 	@Override
@@ -84,29 +79,15 @@ public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>
 
 	@Override
 	public void removeAllServers() {
-		Iterator<X> it = this.connMap.values().iterator();
-		X value;
-		
-		while(it.hasNext()) {
-			value = it.next();
-			it.remove();
-			
-			if(value!=null) {
-				value.dropServer();
-			}
+		List<GearmanServer> srvrs = new ArrayList<GearmanServer>(this.connMap.keySet());
+		for(GearmanServer srvr : srvrs) {
+			this.removeServer(srvr);
 		}
 	}
 
 	@Override
 	public boolean removeServer(GearmanServer srvr) {
-		final X x = this.connMap.get(srvr);
-		
-		if(x!=null) {
-			x.dropServer();
-			return true;
-		} else {
-			return false;
-		}
+		return this.connMap.remove(srvr)!=null;
 	}
 
 	@Override
@@ -115,7 +96,7 @@ public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>
 		if(this.id.equals(id)) return;
 		
 		for(X x : this.connMap.values()) {
-			x.sendPacket(GearmanPacket.createSET_CLIENT_ID(id), null);
+			x.sendPacket(GearmanPacket.createSET_CLIENT_ID(id), null /** TODO */);
 		}
 	}
 
@@ -148,7 +129,7 @@ public abstract class JobServerPoolAbstract <X extends ConnectionController<?,?>
 		this.removeAllServers();
 	}
 	
-	protected Map<GearmanServerInterface,X> getConnections() {
+	protected Map<GearmanServerInterface, X> getConnections() {
 		return Collections.unmodifiableMap(this.connMap);
 	}
 	

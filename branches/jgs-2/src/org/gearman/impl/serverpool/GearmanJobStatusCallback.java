@@ -8,7 +8,6 @@ package org.gearman.impl.serverpool;
 
 import org.gearman.GearmanClient;
 import org.gearman.GearmanJobStatus;
-import org.gearman.GearmanJobStatusFailureType;
 import org.gearman.impl.util.ByteArray;
 
 /**

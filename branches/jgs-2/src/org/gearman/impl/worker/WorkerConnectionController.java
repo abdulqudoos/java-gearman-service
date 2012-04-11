@@ -6,18 +6,18 @@ import java.util.logging.Level;
 import org.gearman.GearmanFunction;
 import org.gearman.impl.GearmanConstants;
 import org.gearman.impl.core.GearmanCallbackHandler;
-import org.gearman.impl.core.GearmanCallbackResult;
 import org.gearman.impl.core.GearmanConnection;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.core.GearmanPacket.Magic;
 import org.gearman.impl.data.GearmanJob;
-import org.gearman.impl.serverpool.ConnectionController;
+import org.gearman.impl.server.GearmanServerInterface;
+import org.gearman.impl.serverpool.AbstractConnectionController;
 import org.gearman.impl.serverpool.ControllerState;
-import org.gearman.impl.serverpool.JobServerPoolAbstract;
+import org.gearman.impl.serverpool.AbstractJobServerPool;
 import org.gearman.impl.util.GearmanUtils;
 
-abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> extends ConnectionController<K,C> {
+abstract class WorkerConnectionController extends AbstractConnectionController {
 
 	private static final int NOOP_TIMEOUT = 59000;
 	private static final int GRAB_TIMEOUT = 19000;
@@ -38,7 +38,7 @@ abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> ex
 	 */
 	private long grabTimeout = Long.MAX_VALUE;
 	
-	WorkerConnectionController(JobServerPoolAbstract<WorkerConnectionController<?,?>> sc, K key) {
+	WorkerConnectionController(AbstractJobServerPool<WorkerConnectionController> sc, GearmanServerInterface key) {
 		super(sc, key);
 	}
 	
@@ -135,7 +135,7 @@ abstract class WorkerConnectionController<K, C extends GearmanCallbackResult> ex
 					// Create job for function
 					//final GearmanJob job = new WorkerJob(name, jobData,this,jobHandle_BA);
 					final GearmanJob job = new GearmanJob(name, jobData);
-					final GearmanFunctionCallbackImpl<K,C> callback = new GearmanFunctionCallbackImpl<>(jobHandle, WorkerConnectionController.this);
+					final GearmanFunctionCallbackImpl callback = new GearmanFunctionCallbackImpl(jobHandle, WorkerConnectionController.this);
 					
 					// Run function
 					try {

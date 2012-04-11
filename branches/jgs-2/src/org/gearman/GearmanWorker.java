@@ -117,6 +117,7 @@ public interface GearmanWorker extends GearmanService{
 	 */
 	public void removeAllServers();
 	
+	
 	public boolean removeServer(GearmanServer server);
 	public void setClientID(String id);
 	public String getClientID();

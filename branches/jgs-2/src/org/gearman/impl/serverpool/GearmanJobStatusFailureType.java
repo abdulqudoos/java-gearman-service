@@ -1,4 +1,4 @@
-package org.gearman;
+package org.gearman.impl.serverpool;
 
 public enum GearmanJobStatusFailureType {
 	SERVER_NOT_AVAILABLE,

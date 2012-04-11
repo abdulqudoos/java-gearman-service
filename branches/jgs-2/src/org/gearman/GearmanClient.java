@@ -16,13 +16,6 @@ import java.util.Collection;
 public interface GearmanClient extends GearmanService {
 	
 	/**
-	 * Gets the maximum number of connections this client may have at any given time
-	 * @return
-	 * 		The maximum number of connections
-	 */
-	public int getConnectionPoolSize();
-	
-	/**
 	 * Polls for the job status. This is a blocking operation. The current thread may block and wait
 	 * for the operation to complete
 	 * @param submittal
@@ -82,62 +75,6 @@ public interface GearmanClient extends GearmanService {
 	 * 		The job return used to poll submit status
 	 */
 	public GearmanJobReturn submitBackgroundJob(String functionName, byte[] data, GearmanJobPriority priority);
-	
-	/**
-	 * Sends a job to a registered job server.
-	 * @param functionName
-	 * 		gearman function name
-	 * @param data
-	 * 		gearman job data
-	 * @param attachment
-	 * 		attachment used to identify the job with the callback class
-	 * @param callback
-	 * 		asynchronous callback class used to receive result data
-	 */
-	public <A> void submitJob(String functionName, byte[] data, A attachment, GearmanJobEventCallback<A> callback);
-	
-	/**
-	 * Sends a job to a registered job server.
-	 * @param functionName
-	 * 		gearman function name
-	 * @param data
-	 * 		gearman job data
-	 * @param priority
-	 * 		gearman job priority
-	 * @param attachment
-	 * 		attachment used to identify the job with the callback class
-	 * @param callback
-	 * 		asynchronous callback class used to receive result data
-	 */
-	public <A> void submitJob(String functionName, byte[] data, GearmanJobPriority priority, A attachment, GearmanJobEventCallback<A> callback);
-	
-	/**
-	 * Submits a background job to a registered job server
-	 * @param functionName
-	 * 		gearman function name
-	 * @param data
-	 * 		gearman job data
-	 * @param attachment
-	 * 		attachment used to identify the job with the callback class
-	 * @param callback
-	 * 		asynchronous callback class used to receive result data
-	 */
-	public <A> void submitBackgroundJob(String functionName, byte[] data, A attachment, GearmanJobEventCallback<A> callback);
-	
-	/**
-	 * Submits a background job to a registered job server
-	 * @param functionName
-	 * 		gearman function name
-	 * @param data
-	 * 		gearman job data
-	 * @param priority
-	 * 		gearman job priority
-	 * @param attachment
-	 * 		attachment used to identify the job with the callback class
-	 * @param callback
-	 * 		asynchronous callback class used to receive result data
-	 */
-	public <A> void submitBackgroundJob(String functionName, byte[] data, GearmanJobPriority priority, A attachment, GearmanJobEventCallback<A> callback);
 	
 	/**
 	 * Adds a {@link GearmanServer} to the service.<br>
@@ -200,12 +137,4 @@ public interface GearmanClient extends GearmanService {
 	 * 		The collection of servers this service is managing
 	 */
 	public Collection<GearmanServer> getServers();
-	
-	/**
-	 * Sets the {@link GearmanLostConnectionPolicy}. The lost connection policy describes
-	 * what should be done in the event that the server unexpectedly disconnects
-	 * @param policy
-	 * 		The policy for handling unexpected disconnects
-	 */
-	public void setLostConnectionPolicy(GearmanLostConnectionPolicy policy);
 }

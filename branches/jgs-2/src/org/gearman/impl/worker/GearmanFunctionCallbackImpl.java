@@ -1,18 +1,17 @@
 package org.gearman.impl.worker;
 
 import org.gearman.GearmanFunctionCallback;
-import org.gearman.impl.core.GearmanCallbackResult;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.core.GearmanPacket.Magic;
 
-class GearmanFunctionCallbackImpl <K, C extends GearmanCallbackResult> implements GearmanFunctionCallback {
+class GearmanFunctionCallbackImpl implements GearmanFunctionCallback {
 	
 	private final byte[] jobHandle;
-	private final WorkerConnectionController<K,C> wcc;
+	private final WorkerConnectionController wcc;
 	
 	private boolean isComplete = false;
 	
-	GearmanFunctionCallbackImpl(byte[] jobHandle, WorkerConnectionController<K,C> wcc) {
+	GearmanFunctionCallbackImpl(byte[] jobHandle, WorkerConnectionController wcc) {
 		this.jobHandle = jobHandle;
 		this.wcc = wcc;
 	}
