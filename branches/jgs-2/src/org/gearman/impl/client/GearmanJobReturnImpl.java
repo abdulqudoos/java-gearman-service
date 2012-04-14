@@ -18,8 +18,8 @@ public class GearmanJobReturnImpl implements GearmanJobReturn {
 			this.wait();
 		}
 		
-		if(eventList.isEmpty())
-			return GearmanJobEventImpl.GEARMAN_EOF;
+		if(this.isEOF())
+			return GearmanJobEventImmutable.GEARMAN_EOF;
 		
 		return eventList.pollFirst();
 	}
@@ -36,28 +36,40 @@ public class GearmanJobReturnImpl implements GearmanJobReturn {
 			timeout = timeout - (startTime - System.currentTimeMillis());
 		}
 		
-		if(eventList.isEmpty() && this.isEOF)
-			return GearmanJobEventImpl.GEARMAN_EOF;
+		if(this.isEOF())
+			return GearmanJobEventImmutable.GEARMAN_EOF;
 		
 		return eventList.pollFirst();
 	}
 
 	@Override
 	public synchronized GearmanJobEvent pollNow() {
-		if(this.isEOF && eventList.isEmpty())
-			return GearmanJobEventImpl.GEARMAN_EOF;
+		if(this.isEOF())
+			return GearmanJobEventImmutable.GEARMAN_EOF;
 		
 		return this.eventList.pollFirst();
 	}
 	
 	public synchronized void put(GearmanJobEvent event) {
+		if(this.isEOF)
+			throw new IllegalStateException();
+		
 		this.eventList.addLast(event);
 		this.notifyAll();
 	}
 	
-	public synchronized void eof() {
+	public synchronized void eof(GearmanJobEvent lastevent) {
+		if(this.isEOF)
+			throw new IllegalStateException();
+		
 		this.isEOF = true;
+		this.eventList.addLast(lastevent);
 		this.notifyAll();
+	}
+
+	@Override
+	public boolean isEOF() {
+		return this.isEOF && eventList.isEmpty();
 	}
 
 }

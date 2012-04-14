@@ -1,10 +1,12 @@
 package org.gearman;
 
+import java.io.Serializable;
+
 /**
  * An  enumerator defining the job event type
  * @author isaiah
  */
-public enum GearmanJobEventType {
+public enum GearmanJobEventType implements Serializable {
 	
 	/**
 	 * Intermediate data received in the normal data channel.<br>
@@ -42,25 +44,11 @@ public enum GearmanJobEventType {
 	GEARMAN_JOB_FAIL,
 	
 	/**
-	 * The job's execution failed because the server was unexpectedly disconnected<br>
-	 * <br>
-	 * <b>Return Type:</b> None
-	 */
-	GEARMAN_JOB_DISCONNECT,
-	
-	/**
 	 * The job submission failed because there are no available job servers to submit to<br>
 	 * <br>
 	 * <b>Return Type:</b> None
 	 */
-	GEARMAN_SUBMIT_FAIL_SERVER_NOT_AVAILABLE,
-	
-	/**
-	 * The job submission failed because connection to one or more servers failed<br>
-	 * <br>
-	 * <b>Return Type:</b> None
-	 */
-	GEARMAN_SUBMIT_FAIL_CONNECTION_FAILED,
+	GEARMAN_SUBMIT_FAIL,
 	
 	/**
 	 * The job was successfully submitted to the job server<br>

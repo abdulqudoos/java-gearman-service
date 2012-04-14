@@ -6,13 +6,11 @@
 
 package org.gearman;
 
-import java.io.Serializable;
-
 /**
  * An immutable object specifying a job's status at a 
  * @author isaiah
  */
-public interface GearmanJobStatus extends Serializable {
+public interface GearmanJobStatus {
 	
 	/**
 	 * Tests if the server knew the status of the job in question.

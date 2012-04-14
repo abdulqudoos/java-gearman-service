@@ -49,7 +49,13 @@ public abstract class AbstractJobServerPool <X extends AbstractConnectionControl
 		if(this.isShutdown) throw new IllegalStateException("In Shutdown State");
 		
 		X x = this.createController(key);
-		return this.connMap.putIfAbsent(key, x)==null;
+		
+		if(this.connMap.putIfAbsent(key, x)==null) {
+			x.onNew();
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	@Override

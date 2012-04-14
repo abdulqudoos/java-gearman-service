@@ -1,10 +1,12 @@
 package org.gearman;
 
+import java.io.Serializable;
+
 /**
  * Defines why a method is being called
  * @author isaiah
  */
-public enum GearmanLostConnectionGrounds {
+public enum GearmanLostConnectionGrounds implements Serializable {
 	/**
 	 * The server in question unexpectedly disconnected.
 	 */

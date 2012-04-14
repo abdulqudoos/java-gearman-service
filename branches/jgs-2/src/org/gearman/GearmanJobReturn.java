@@ -36,4 +36,6 @@ public interface GearmanJobReturn {
 	 * 		The next job event or <code>null</code> if no event is available.
 	 */
 	public GearmanJobEvent pollNow();
+	
+	public boolean isEOF();
 }

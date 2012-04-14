@@ -1,12 +1,10 @@
 package org.gearman;
 
-import java.io.Serializable;
-
 /**
  * An object used to 
  * @author isaiah
  */
-public interface GearmanPersistable extends Serializable {
+public interface GearmanPersistable {
 	
 	public String getFunctionName();
 	

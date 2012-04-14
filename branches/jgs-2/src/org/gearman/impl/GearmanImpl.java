@@ -17,6 +17,7 @@ import org.gearman.GearmanPersistence;
 import org.gearman.GearmanServer;
 import org.gearman.GearmanService;
 import org.gearman.GearmanWorker;
+import org.gearman.impl.client.ClientImpl;
 import org.gearman.impl.core.GearmanConnectionManager;
 import org.gearman.impl.server.local.GearmanServerLocal;
 import org.gearman.impl.server.remote.GearmanServerRemote;
@@ -42,6 +43,8 @@ public final class GearmanImpl extends Gearman {
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 	private final Set<GearmanService> serviceSet = Collections.synchronizedSet(new HashSet<GearmanService>());
 	
+	private boolean isShutdown = false;
+	
 	public GearmanImpl() throws IOException {
 		this(1);
 	}
@@ -55,19 +58,22 @@ public final class GearmanImpl extends Gearman {
 		pool.prestartCoreThread();
 		
 		this.scheduler = new Scheduler(pool); 
-		this.connectionManager = new GearmanConnectionManager();
+		this.connectionManager = new GearmanConnectionManager(scheduler);
 	}
 
 	@Override
 	public void shutdown() {
 		try {
 			lock.writeLock().lock();
+			this.isShutdown = true;
 			
 			for(GearmanService service : this.serviceSet) {
 				service.shutdown();
 			}
+			this.serviceSet.clear();
+			
+			// Shutting down the connection manager will shutdown the scheduler
 			this.connectionManager.shutdown();
-			this.scheduler.shutdown();
 		} finally {
 			lock.writeLock().unlock();
 		}
@@ -75,7 +81,7 @@ public final class GearmanImpl extends Gearman {
 
 	@Override
 	public boolean isShutdown() {
-		return this.connectionManager.isShutdown();
+		return this.isShutdown;
 	}
 
 	@Override
@@ -126,8 +132,19 @@ public final class GearmanImpl extends Gearman {
 
 	@Override
 	public GearmanClient createGearmanClient() {
-		// TODO Auto-generated method stub
-		return null;
+		lock.readLock().lock();
+		try {
+			if(this.isShutdown()) {
+				throw new IllegalStateException("Shutdown Service");
+			}
+			
+			final GearmanClient client = new ClientImpl(this);
+			this.serviceSet.add(client);
+			
+			return client;
+		} finally {
+			lock.readLock().unlock();
+		}
 	}
 	
 	public Scheduler getScheduler() {

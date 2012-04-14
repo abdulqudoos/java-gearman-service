@@ -3,7 +3,6 @@ package org.gearman.impl.serverpool;
 import org.gearman.GearmanJobStatus;
 
 class GearmanJobStatusImpl implements GearmanJobStatus {
-	private static final long serialVersionUID = 1L;
 	
 	private final boolean isKnown;
 	private final boolean isRunning;

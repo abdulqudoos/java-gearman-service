@@ -5,7 +5,6 @@ import org.gearman.GearmanPersistable;
 import org.gearman.impl.GearmanConstants;
 
 class ServerPersistable implements GearmanPersistable {
-	private static final long serialVersionUID = 1L;
 	
 	private final String functionName;
 	private final byte[] data;

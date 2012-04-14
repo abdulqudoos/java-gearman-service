@@ -107,6 +107,9 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 			this.lock.writeLock().unlock();
 		}
 		
+		for(int port : this.openPorts)
+			this.gearman.getGearmanConnectionManager().closePort(port);
+		
 		for(Client client : clients) {
 			client.close();
 		}

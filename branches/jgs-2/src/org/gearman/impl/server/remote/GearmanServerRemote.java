@@ -188,6 +188,7 @@ public class GearmanServerRemote implements GearmanServerInterface {
 				lock.readLock().unlock();
 			}
 			
+			connections.add(conn);
 			handler.onAccept(conn);
 		}
 
