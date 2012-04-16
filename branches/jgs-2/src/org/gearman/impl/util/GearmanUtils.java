@@ -7,6 +7,7 @@
 package org.gearman.impl.util;
 
 import java.net.InetSocketAddress;
+import java.util.UUID;
 
 import org.gearman.impl.core.GearmanConnection;
 
@@ -22,5 +23,9 @@ public class GearmanUtils {
 	
 	public static final String toString(GearmanConnection<?> conn) {
 		return "["+conn.getHostAddress() + ":" + conn.getPort() +"]";
+	}
+	
+	public static final byte[] createUID() {
+		return UUID.randomUUID().toString().getBytes();
 	}
 }

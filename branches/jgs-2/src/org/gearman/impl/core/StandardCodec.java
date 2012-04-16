@@ -9,14 +9,13 @@ package org.gearman.impl.core;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
 
 import org.gearman.impl.GearmanConstants;
 import org.gearman.impl.core.GearmanPacket.Magic;
 import org.gearman.impl.core.GearmanPacket.Type;
 
 public final class StandardCodec implements GearmanCodec<Integer>{
-
+	
 	private static final int FORMAT 	= 0;
 	private static final int HEADER		= 1;
 	private static final int BODY		= 2;
@@ -147,7 +146,7 @@ public final class StandardCodec implements GearmanCodec<Integer>{
 			
 			channel.onDecode(packet);
 		} catch (Exception e) {
-			GearmanConstants.LOGGER.log(Level.WARNING, "unexpected exception", e);
+			GearmanConstants.LOGGER.warn("Unexpected Exception", e);
 		}
 	}
 	
@@ -179,7 +178,7 @@ public final class StandardCodec implements GearmanCodec<Integer>{
 				channel.setCodecAttachement(FORMAT);
 			}
 		} catch (Throwable th) {
-			GearmanConstants.LOGGER.log(Level.WARNING, "unexpected exception", th);
+			GearmanConstants.LOGGER.warn("Unexpected Exception", th);
 		}
 	}
 	
@@ -205,7 +204,7 @@ public final class StandardCodec implements GearmanCodec<Integer>{
 		try {
 			buff.close();
 		} catch (IOException e) {
-			GearmanConstants.LOGGER.log(Level.WARNING, "failed to byte buffer", e);
+			GearmanConstants.LOGGER.warn("Failed to close ByteArrayOutputStream", e);
 		}
 		
 		if(arg==argCount-1) {

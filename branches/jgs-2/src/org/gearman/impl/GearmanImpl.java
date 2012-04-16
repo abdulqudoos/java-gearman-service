@@ -25,17 +25,10 @@ import org.gearman.impl.util.Scheduler;
 import org.gearman.impl.worker.GearmanWorkerImpl;
 
 /**
- * 
+ * The implementation of the {@link Gearman} class
  * @author isaiah
- *
  */
 public final class GearmanImpl extends Gearman {
-	
-	/*
-	 * TODO add a weak/soft reference mechanism for GearmanService object held by
-	 * this class and for functions
-	 */
-	
 	
 	private final GearmanConnectionManager connectionManager;
 	private final Scheduler scheduler;
@@ -156,12 +149,12 @@ public final class GearmanImpl extends Gearman {
 	}
 
 	@Override
-	public GearmanServer createGearmanServer(int port) throws IOException {
-		return createGearmanServer(port, (GearmanPersistence)null);
+	public GearmanServer startGearmanServer(int port) throws IOException {
+		return startGearmanServer(port, (GearmanPersistence)null);
 	}
 
 	@Override
-	public GearmanServer createGearmanServer(int port, GearmanPersistence persistence) throws IOException {
+	public GearmanServer startGearmanServer(int port, GearmanPersistence persistence) throws IOException {
 		lock.readLock().lock();
 		try {
 			if(this.isShutdown()) {
@@ -189,7 +182,12 @@ public final class GearmanImpl extends Gearman {
 	}
 
 	@Override
-	public GearmanServer createGearmanServer() throws IOException {
-		return createGearmanServer(GearmanConstants.PORT);
+	public GearmanServer startGearmanServer() throws IOException {
+		return startGearmanServer(getDefaultPort());
+	}
+
+	@Override
+	public int getDefaultPort() {
+		return GearmanConstants.PORT;
 	}
 }

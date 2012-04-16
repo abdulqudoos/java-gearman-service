@@ -3,7 +3,7 @@ package org.gearman;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A synchronous class used to receive incoming job data from the job server.
+ * The gearman job return is used to receive incoming job data from the job server.
  * @author isaiah
  */
 public interface GearmanJobReturn {
@@ -37,5 +37,11 @@ public interface GearmanJobReturn {
 	 */
 	public GearmanJobEvent pollNow();
 	
+	/**
+	 * Tests if the job return has reached the end-of-file. If the end-of-file has been
+	 * reached, no more data will be received from this job return
+	 * @return
+	 * 		<code>true</code> if and only if the end-of-file has been reached
+	 */
 	public boolean isEOF();
 }

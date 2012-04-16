@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 
 import org.gearman.impl.GearmanImpl;
 import org.gearman.impl.GearmanConstants;
@@ -93,7 +92,7 @@ public class GearmanServerRemote implements GearmanServerInterface {
 			try {
 				conn.close();
 			} catch (IOException e) {
-				GearmanConstants.LOGGER.log(Level.SEVERE, "failed to close gearman connection", e);
+				GearmanConstants.LOGGER.error("failed to close gearman connection", e);
 			}
 		}
 		
@@ -180,7 +179,7 @@ public class GearmanServerRemote implements GearmanServerInterface {
 						conn.close();
 					} catch (IOException e) {
 						failCallback.onComplete(GearmanServerRemote.this, ConnectCallbackResult.SERVICE_SHUTDOWN);
-						GearmanConstants.LOGGER.log(Level.SEVERE, "failed to close connection", e);
+						GearmanConstants.LOGGER.error("failed to close gearman connection", e);
 					}
 					return;
 				}

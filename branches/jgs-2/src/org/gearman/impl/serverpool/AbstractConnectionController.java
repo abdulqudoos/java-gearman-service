@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import org.gearman.GearmanLostConnectionGrounds;
 import org.gearman.impl.GearmanConstants;
@@ -95,7 +94,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 	
 	@Override
 	public final void onAccept(final GearmanConnection<Object> conn) {
-		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn) + " : Connected");
+		GearmanConstants.LOGGER.info(GearmanUtils.toString(conn) + " : Connected");
 		
 		synchronized(this.lock) {
 			
@@ -140,7 +139,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 				try {
 					conn.close();
 				} catch (IOException e) {
-					// TODO log this.defaultCallback.logger.log(e);
+					GearmanConstants.LOGGER.warn("failed To close connection", e);
 				}
 			}
 		}
@@ -148,7 +147,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 	
 	@Override
 	public final void onDisconnect(final GearmanConnection<Object> conn) {
-		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn) + " : Disconnected");
+		GearmanConstants.LOGGER.info(GearmanUtils.toString(conn) + " : Disconnected");
 		
 		synchronized(this.lock) {
 			if(!this.isOpen() && !this.isClosePending()) return;
@@ -227,7 +226,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 	public boolean sendPacket(GearmanPacket packet, GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback) {
 		if(this.conn==null || conn.isClosed()) return false;
 		
-		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn) + " : OUT : " + packet.getPacketType().toString());
+		GearmanConstants.LOGGER.info(GearmanUtils.toString(conn) + " : OUT : " + packet.getPacketType().toString());
 		this.conn.sendPacket(packet, callback==null? this.defaultCallback: new SendCallback(callback));
 		return true;
 	}
@@ -363,7 +362,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 					try {
 						this.conn.close();
 					} catch (IOException e) {
-						// TODO log this.defaultCallback.logger.log(e);
+						GearmanConstants.LOGGER.warn("failed to close connection",e);
 					}
 					this.conn = null;
 				}
@@ -397,7 +396,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 				try {
 					conn.close();
 				} catch (IOException e) {
-					// TODO log this.defaultCallback.logger.log(e);
+					GearmanConstants.LOGGER.warn("failed to close connection", e);
 				}
 			}
 			
@@ -425,7 +424,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 				try {
 					conn.close();
 				} catch (IOException e) {
-					// TODO log this.defaultCallback.logger.log(e);
+					GearmanConstants.LOGGER.warn("failed to close connection", e);
 				}
 			}
 			

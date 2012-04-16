@@ -3,7 +3,7 @@ package org.gearman;
 import java.io.Serializable;
 
 /**
- * An  enumerator defining the job event type
+ * An enumerator defining the job event type
  * @author isaiah
  */
 public enum GearmanJobEventType implements Serializable {

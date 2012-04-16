@@ -137,4 +137,12 @@ public interface GearmanClient extends GearmanService {
 	 * 		The collection of servers this service is managing
 	 */
 	public Collection<GearmanServer> getServers();
+	
+	/**
+	 * Sets the {@link GearmanLostConnectionPolicy}. The lost connection policy describes
+	 * what should be done in the event that the server unexpectedly disconnects
+	 * @param policy
+	 * 		The policy for handling unexpected disconnects
+	 */
+	public void setLostConnectionPolicy(GearmanLostConnectionPolicy policy);
 }

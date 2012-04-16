@@ -8,6 +8,9 @@ package org.gearman;
 
 import java.io.IOException;
 
+import org.gearman.config.GearmanProperties;
+import org.gearman.config.PropertyName;
+
 /**
  * A <code>Gearman</code> object defines a gearman systems and creates gearman
  * services. These services include {@link GearmanWorker}s,
@@ -19,8 +22,6 @@ import java.io.IOException;
  */
 public abstract class Gearman implements GearmanService{
 	
-	private static final String GEARMAN_CLASSNAME = "org.gearman.impl.GearmanImpl";
-	
 	/**
 	 * Creates a new {@link Gearman} instance
 	 * @return
@@ -29,7 +30,9 @@ public abstract class Gearman implements GearmanService{
 	public static Gearman createGearman() {
 		
 		try {
-			final Class<?> implClass = Class.forName(GEARMAN_CLASSNAME);
+			final String className = GearmanProperties.getProperty(PropertyName.GEARMAN_CLASSNAME);
+			
+			final Class<?> implClass = Class.forName(className);
 			final Object o = implClass.newInstance();
 			
 			return (Gearman)o;
@@ -51,33 +54,47 @@ public abstract class Gearman implements GearmanService{
 	 */
 	public abstract String getVersion();
 	
-	public abstract GearmanServer createGearmanServer() throws IOException;
+	/**
+	 * Returns the default port number
+	 * @return
+	 * 		the default port number
+	 */
+	public abstract int getDefaultPort();
 	
 	/**
-	 * Creates a new local gearman job server running in the current address space. 
-	 * @param ports
-	 * 		The port numbers this server should listen on. If no port number is given, the
-	 * 		default will be used
+	 * Starts a new local gearman job server running in the current address space, using
+	 * the default port
 	 * @return
 	 * 		A new gearman server instance
 	 * @throws IOException
-	 * 		If an IO exception occurs while attempting to open any of the given ports
+	 * 		If an IO exception occurs while attempting to open the default port
+	 * @see Gearman#getDefaultPort()
 	 */
-	public abstract GearmanServer createGearmanServer(int port) throws IOException;
+	public abstract GearmanServer startGearmanServer() throws IOException;
 	
 	/**
-	 * Creates a new local gearman job server running in the current address space. 
+	 * Starts a new local gearman job server running in the current address space. 
 	 * @param ports
-	 * 		The port numbers this server should listen on. If no port number is given, the
-	 * 		default will be used
+	 * 		The port number this server will listen on.
+	 * @return
+	 * 		A new gearman server instance
+	 * @throws IOException
+	 * 		If an IO exception occurs while attempting to open the given port
+	 */
+	public abstract GearmanServer startGearmanServer(int port) throws IOException;
+	
+	/**
+	 * Starts a new local gearman job server running in the current address space. 
+	 * @param ports
+	 * 		The port numbers this server should listen on.
 	 * @param persistence
-	 * 		An object providing the logic   
+	 * 		An application hook used to tell the server how to persist jobs
 	 * @return
 	 * 		A new gearman server instance
 	 * @throws IOException
-	 * 		If an IO exception occurs while attempting to open any of the given ports
+	 * 		If an IO exception occurs while attempting to open the given port
 	 */
-	public abstract GearmanServer createGearmanServer(int port, GearmanPersistence persistence) throws IOException;
+	public abstract GearmanServer startGearmanServer(int port, GearmanPersistence persistence) throws IOException;
 	
 	/**
 	 * Creates an object representing a remote gearman job server

@@ -12,12 +12,14 @@ import org.gearman.GearmanJobEvent;
 import org.gearman.GearmanJobPriority;
 import org.gearman.GearmanJobReturn;
 import org.gearman.GearmanJobStatus;
+import org.gearman.GearmanLostConnectionAction;
 import org.gearman.GearmanLostConnectionGrounds;
 import org.gearman.GearmanLostConnectionPolicy;
 import org.gearman.impl.GearmanImpl;
 import org.gearman.impl.server.GearmanServerInterface;
 import org.gearman.impl.serverpool.AbstractJobServerPool;
 import org.gearman.impl.serverpool.ControllerState;
+import org.gearman.impl.util.GearmanUtils;
 
 public class ClientImpl extends AbstractJobServerPool<ClientImpl.InnerConnectionController> implements GearmanClient {
 
@@ -47,23 +49,44 @@ public class ClientImpl extends AbstractJobServerPool<ClientImpl.InnerConnection
 			super.close();
 			
 			if(this.getKey().isShutdown()) {
+				policy.shutdownServer(this.getKey());
 				super.dropServer();
 				return;
 			}
 			
-			switch(grounds) {
-			case UNEXPECTED_DISCONNECT:
-			case RESPONSE_TIMEOUT:
-				ClientImpl.this.removeFromOpen(this);
-				break;
-			case FAILED_CONNECTION:
-				ClientImpl.this.onFailedConnection(this);
-				break;
-			default:
-				assert false;
+			GearmanLostConnectionAction action = null;
+			
+			try {
+				action = policy.lostConnection(this.getKey(), grounds);
+			} catch (Throwable t) {
+				action = null;
 			}
 			
-			ClientImpl.this.addController(this);
+			if(action==null) {
+				action = ClientImpl.this.getDefaultPolicy().lostConnection(this.getKey(), grounds);
+				assert action!=null;
+			}
+			
+			if(action.equals(GearmanLostConnectionAction.DROP)) {
+				// Drop
+				super.dropServer();
+			} else {
+				// reconnect
+				
+				switch(grounds) {
+				case UNEXPECTED_DISCONNECT:
+				case RESPONSE_TIMEOUT:
+					ClientImpl.this.removeFromOpen(this);
+					break;
+				case FAILED_CONNECTION:
+					ClientImpl.this.onFailedConnection(this);
+					break;
+				default:
+					assert false;
+				}
+				
+				ClientImpl.this.addController(this);
+			}
 		}
 
 		@Override
@@ -390,7 +413,7 @@ public class ClientImpl extends AbstractJobServerPool<ClientImpl.InnerConnection
 			return jobReturn;
 		}
 		
-		this.addJob(new ClientJobSubmission(functionName, data, null /*TODO uid*/ , jobReturn, priority, isBackground));
+		this.addJob(new ClientJobSubmission(functionName, data, GearmanUtils.createUID() , jobReturn, priority, isBackground));
 		return jobReturn;
 	}
 }

@@ -15,10 +15,10 @@ import org.gearman.impl.util.ArgumentParser.Option;
 class Main {
 	
 	private static String HELP = 
-		GearmanConstants.VERSION + "\n" +
+		GearmanConstants.PROJECT_NAME + " v" + GearmanConstants.VERSION + "\n" +
 		"\n" +
 		"usage:\n" +
-		"java [jvm options] -jar "+GearmanConstants.VERSION+".jar [server options]\n" +
+		"java [jvm options] -jar "+GearmanConstants.PROJECT_NAME+ "-" +GearmanConstants.VERSION+".jar [server options]\n" +
 		"\n" +
 		"Options:\n" +
 		"   -p PORT   --port=PORT     Defines what port number the server will listen on (Default: 4730)\n" +
@@ -52,7 +52,7 @@ class Main {
 			Gearman gearman = Gearman.createGearman();
 			
 			// Create the server and listen on the given port
-			gearman.createGearmanServer(main.getPort());
+			gearman.startGearmanServer(main.getPort());
 			
 		} catch (Throwable th) {
 			System.err.println(th.getMessage());

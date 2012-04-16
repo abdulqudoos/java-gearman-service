@@ -22,10 +22,4 @@ public class GearmanJobEventImpl implements GearmanJobEvent {
 	public byte[] getData() {
 		return data;
 	}
-
-	@Override
-	public boolean hasData() {
-		return data!=null;
-	}
-
 }

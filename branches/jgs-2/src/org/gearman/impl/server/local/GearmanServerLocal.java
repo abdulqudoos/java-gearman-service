@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.logging.Level;
 
 import org.gearman.GearmanPersistence;
 import org.gearman.impl.GearmanImpl;
@@ -65,7 +64,7 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 				gearman.getGearmanConnectionManager().openPort(port, this);
 				portSet.add(port);
 			} catch (IOException ioe) {
-				GearmanConstants.LOGGER.log(Level.SEVERE, "failed to open port: " + port, ioe);
+				GearmanConstants.LOGGER.error("failed to open port: " + port, ioe);
 			}
 		}
 		
@@ -282,14 +281,14 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 				return;
 			}
 			
-			GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn) + " : Connected");
+			GearmanConstants.LOGGER.info(GearmanUtils.toString(conn) + " : Connected");
 			
 			final Client client = new ClientImpl(conn);
 			conn.setAttachment(client);
 				
 			this.clients.add(client);
 		} catch (IOException e) {
-			GearmanConstants.LOGGER.log(Level.WARNING, "failed to close connection", e);
+			GearmanConstants.LOGGER.warn("failed to close connection", e);
 		} finally {
 			this.lock.readLock().unlock();
 		}
@@ -297,7 +296,7 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<Client> conn) {
-		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn) + " : IN : " + packet.getPacketType().toString());
+		GearmanConstants.LOGGER.info(GearmanUtils.toString(conn) + " : IN : " + packet.getPacketType().toString());
 		
 		assert packet!=null;
 		assert conn.getAttachment()!=null;
@@ -305,7 +304,7 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 		try {
 			this.interpreter.execute(packet, conn.getAttachment());
 		} catch (Exception e) {
-			GearmanConstants.LOGGER.log(Level.SEVERE, "failed to execute packet: "+packet.getPacketType().toString(),e);
+			GearmanConstants.LOGGER.error("failed to execute packet: "+packet.getPacketType().toString(),e);
 		}
 	}
 

@@ -1,7 +1,6 @@
 package org.gearman.impl.worker;
 
 import java.util.Set;
-import java.util.logging.Level;
 
 import org.gearman.GearmanFunction;
 import org.gearman.impl.GearmanConstants;
@@ -142,7 +141,8 @@ abstract class WorkerConnectionController extends AbstractConnectionController {
 						final byte[] result = func.work(job.getFunctionName(), job.getData(), callback);
 						callback.success(result==null? new byte[]{} : result);
 					} catch(Throwable e) {
-						//TODO log message
+						if(GearmanConstants.LOGGER.isInfoEnabled())
+							GearmanConstants.LOGGER.info("Gearman Job Failed: " + new String(jobHandle) + " : " + e.getMessage());
 						callback.fail();
 					}
 					
@@ -186,7 +186,7 @@ abstract class WorkerConnectionController extends AbstractConnectionController {
 	
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<Object> conn) {
-		GearmanConstants.LOGGER.log(Level.INFO, GearmanUtils.toString(conn)+ " : IN : " + packet.getPacketType());
+		GearmanConstants.LOGGER.info(GearmanUtils.toString(conn)+ " : IN : " + packet.getPacketType());
 		
 		switch (packet.getPacketType()) {
 		case NOOP:

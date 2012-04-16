@@ -22,12 +22,4 @@ public interface GearmanJobEvent {
 	 * @see #hasData() 
 	 */
 	public byte[] getData();
-	
-	/**
-	 * Tests if this job result has data to poll
-	 * @return
-	 * 		<code>true</code> if the {@link GearmanJobEventType} attached to this job result
-	 * 		has data 
-	 */
-	public boolean hasData();
 }
