@@ -11,6 +11,7 @@ import org.gearman.impl.core.GearmanConnection;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.util.ByteArray;
+import org.gearman.impl.util.GearmanUtils;
 
 class ClientImpl implements Client {
 
@@ -77,7 +78,7 @@ class ClientImpl implements Client {
 		
 		try { this.conn.close(); }
 		catch (IOException e) {
-			//TODO log
+			GearmanConstants.LOGGER.warn("failed to close connection", e);
 		}
 		
 		synchronized(this.disconnectListeners) {
@@ -191,7 +192,7 @@ class ClientImpl implements Client {
 	
 	@Override
 	public void sendPacket(GearmanPacket packet, GearmanCallbackHandler<GearmanPacket, SendCallbackResult> callback) {
-		// TODO logger.log(GearmanLogger.toString(conn) + " : OUT : " + packet.getPacketType().toString());
+		GearmanConstants.LOGGER.info(GearmanUtils.toString(conn) + " : OUT : " + packet.getPacketType().toString());
 		this.conn.sendPacket(packet, callback==null? this.defaultCallback : new SendCallback(callback));
 	}
 	
@@ -236,7 +237,7 @@ class ClientImpl implements Client {
 					callback.onComplete(data, result);
 			} finally {
 				if(!result.isSuccessful()) {
-					// TODO logger.log(Level.WARNING, GearmanLogger.toString(conn) + " : FAILED TO SEND PACKET : " + data.getPacketType().toString());
+					GearmanConstants.LOGGER.warn(GearmanUtils.toString(conn) + " : FAILED TO SEND PACKET : " + data.getPacketType().toString());
 				}
 			}
 		}

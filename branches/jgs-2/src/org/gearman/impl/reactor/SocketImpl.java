@@ -17,6 +17,8 @@ import java.nio.channels.CompletionHandler;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.gearman.impl.GearmanConstants;
+
 final class SocketImpl<A> implements Socket<A>, CompletionHandler<Integer, Object> {
 	
 	private final AsynchronousSocketChannel socketChannel;
@@ -207,10 +209,9 @@ final class SocketImpl<A> implements Socket<A>, CompletionHandler<Integer, Objec
 		try {
 			this.socketChannel.close();
 		} catch (IOException ioe) {
-			//TODO log error
-			System.out.println(ioe.getMessage());
+			GearmanConstants.LOGGER.warn("Failed to close connection", ioe);
 		} catch (Throwable th) {
-			System.out.println(th.getMessage());
+			GearmanConstants.LOGGER.warn("Unexspected Exception", th);
 		} finally {
 			this.handler.onDisconnect(this);
 		}

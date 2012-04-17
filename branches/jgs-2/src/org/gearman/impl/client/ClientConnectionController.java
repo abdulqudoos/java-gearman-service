@@ -5,17 +5,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.gearman.GearmanJobEventType;
 import org.gearman.GearmanJobPriority;
+import org.gearman.impl.GearmanConstants;
+import org.gearman.impl.core.GearmanCallbackHandler;
 import org.gearman.impl.core.GearmanConnection;
+import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.core.GearmanPacket;
 import org.gearman.impl.server.GearmanServerInterface;
 import org.gearman.impl.serverpool.AbstractConnectionController;
 import org.gearman.impl.serverpool.AbstractJobServerPool;
 import org.gearman.impl.util.ByteArray;
+import org.gearman.impl.util.GearmanUtils;
 
 abstract class ClientConnectionController extends AbstractConnectionController {
 
 	private static final int RESPONCE_TIMEOUT = 19000;
 	private static final int IDLE_TIMEOUT = 9000;
+	
+	private final InnerGearmanCallback jobSendCallback = new InnerGearmanCallback();
 	
 	/**
 	 * The set of executing jobs. The key is the job's handle and the value is the job itself
@@ -79,26 +85,26 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 		if(jobSub.isBackground) {
 			switch(p) {
 			case LOW_PRIORITY:
-				this.sendPacket(GearmanPacket.createSUBMIT_JOB_LOW_BG(funcName, uID, data), null/*TODO*/);
+				this.sendPacket(GearmanPacket.createSUBMIT_JOB_LOW_BG(funcName, uID, data), jobSendCallback);
 				break;
 			case HIGH_PRIORITY:
-				this.sendPacket(GearmanPacket.createSUBMIT_JOB_HIGH_BG(funcName, uID, data), null/*TODO*/);
+				this.sendPacket(GearmanPacket.createSUBMIT_JOB_HIGH_BG(funcName, uID, data), jobSendCallback);
 				break;
 			case NORMAL_PRIORITY:
-				this.sendPacket(GearmanPacket.createSUBMIT_JOB_BG(funcName, uID, data), null/*TODO*/);
+				this.sendPacket(GearmanPacket.createSUBMIT_JOB_BG(funcName, uID, data), jobSendCallback);
 				break;
 			}
 		} else {
 		
 			switch(p) {
 			case LOW_PRIORITY:
-				this.sendPacket(GearmanPacket.createSUBMIT_JOB_LOW(funcName, uID, data), null/*TODO*/);
+				this.sendPacket(GearmanPacket.createSUBMIT_JOB_LOW(funcName, uID, data), jobSendCallback);
 				break;
 			case HIGH_PRIORITY:
-				this.sendPacket(GearmanPacket.createSUBMIT_JOB_HIGH(funcName, uID, data), null/*TODO*/);
+				this.sendPacket(GearmanPacket.createSUBMIT_JOB_HIGH(funcName, uID, data), jobSendCallback);
 				break;
 			case NORMAL_PRIORITY:
-				this.sendPacket(GearmanPacket.createSUBMIT_JOB(funcName, uID, data), null/*TODO*/);
+				this.sendPacket(GearmanPacket.createSUBMIT_JOB(funcName, uID, data), jobSendCallback);
 				break;
 			}
 		}
@@ -108,7 +114,7 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 		
 	@Override
 	public void onPacketReceived(GearmanPacket packet, GearmanConnection<Object> conn) {
-		// TODO super.getGearmanLogger().log(GearmanLogger.toString(conn) + " : IN : " + packet.getPacketType());
+		GearmanConstants.LOGGER.info(GearmanUtils.toString(conn) + " : IN : " + packet.getPacketType());
 		
 		switch (packet.getPacketType()) {
 		case JOB_CREATED:
@@ -155,7 +161,7 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 		final GearmanJobReturnImpl jobReturn = this.jobs.get(jobHandle);
 		
 		if(jobReturn==null) {
-			// TODO log warning
+			GearmanConstants.LOGGER.warn("Unexspected Packet : WORK_WARNING : "+ jobHandle.toString(GearmanConstants.CHARSET));
 			return;
 		}
 		
@@ -168,7 +174,7 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 		final GearmanJobReturnImpl jobReturn = this.jobs.get(jobHandle);
 		
 		if(jobReturn==null) {
-			// TODO log warning
+			GearmanConstants.LOGGER.warn("Unexspected Packet : WORK_DATA : "+ jobHandle.toString(GearmanConstants.CHARSET));
 			return;
 		}
 		
@@ -208,7 +214,7 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 		}
 		
 		if(jobReturn==null) {
-			// TODO log warning
+			GearmanConstants.LOGGER.warn("Unexspected Packet : WORK_FAIL : "+ jobHandle.toString(GearmanConstants.CHARSET));
 			return;
 		}
 		
@@ -240,7 +246,7 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 		final GearmanJobReturnImpl jobReturn = ClientConnectionController.this.jobs.get(jobHandle);
 		
 		if(jobReturn==null) {
-			// TODO log warning
+			GearmanConstants.LOGGER.warn("Unexspected Packet : WORK_STATUS : "+ jobHandle.toString(GearmanConstants.CHARSET));
 			return;
 		}
 		
@@ -270,7 +276,7 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 		}
 		
 		if(jobReturn==null) {
-			//TODO log warning
+			GearmanConstants.LOGGER.warn("Unexspected Packet : WORK_COMPLETE : "+ jobHandle.toString(GearmanConstants.CHARSET));
 			return;
 		}
 		
@@ -279,6 +285,28 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 	}
 	
 	private final void error(final GearmanPacket packet) {
-		//TODO log error
+		final String errorCode = new String(packet.getArgumentData(0), GearmanConstants.CHARSET);
+		final String errorText = new String(packet.getArgumentData(1), GearmanConstants.CHARSET);
+		
+		GearmanConstants.LOGGER.error("Recived Error Packet: " + errorText + "(" + errorCode + ")");
+	}
+	
+	private final class InnerGearmanCallback implements GearmanCallbackHandler<GearmanPacket, SendCallbackResult>  {
+		@Override
+		public void onComplete(GearmanPacket data, SendCallbackResult result) {
+			if(!result.isSuccessful()) {
+				final ClientJobSubmission jobSub;
+				
+				synchronized(jobs) {
+					jobSub = pendingJob;
+					pendingJob = null;
+				}
+				
+				// TODO log
+				jobSub.jobReturn.eof(GearmanJobEventImmutable.GEARMAN_SUBMIT_FAIL_SEND_FAILED);
+				
+				grab();
+			}
+		}
 	}
 }

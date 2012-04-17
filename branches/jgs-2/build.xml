@@ -18,7 +18,7 @@
 <project name="java-gearman-service" default="build-all" basedir="." >
 	
 	<!-- Current Project Version -->
-	<property name="version" value="dev-0.6" />
+	<property name="version" value="0.6" />
 	
 	<property name="build" location="./../builds/${ant.project.name}/${version}" />
 	<property name="build.src" location="${build}/src" />
@@ -28,6 +28,13 @@
 	<property name="javac.target" value="1.7" />
 	
 	<property name="project.src" location="./src" />
+	<property name="project.lib" location="./lib" />
+	
+	
+	<path id="jgs.classpath">
+		<pathelement location="${project.lib}/slf4j-api-1.6.4.jar" />
+	</path>
+
 	
 	<target depends="clean" name="init" >
 		<mkdir dir="${build.src}" />
@@ -85,7 +92,9 @@
 	</target>
 	
 	<target depends="copy" name="build">
-		<javac destdir="${build.bin}" srcdir="${build.src}" target="${javac.target}" source="${javac.target}" />
+		<javac destdir="${build.bin}" srcdir="${build.src}" target="${javac.target}" source="${javac.target}" >
+			<classpath refid="jgs.classpath" />
+		</javac>
 	</target>
 	
 	<target depends="jar, zip-all" name="build-all" />

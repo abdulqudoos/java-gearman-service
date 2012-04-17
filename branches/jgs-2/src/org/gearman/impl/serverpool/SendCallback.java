@@ -1,5 +1,6 @@
 package org.gearman.impl.serverpool;
 
+import org.gearman.impl.GearmanConstants;
 import org.gearman.impl.core.GearmanCallbackHandler;
 import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
 import org.gearman.impl.core.GearmanPacket;
@@ -14,7 +15,7 @@ class SendCallback implements GearmanCallbackHandler<GearmanPacket, SendCallback
 	@Override
 	public void onComplete(GearmanPacket data, SendCallbackResult result) {
 		if(!result.isSuccessful()) {
-			// TODO log warlogger.log(Level.WARNING, "");
+			GearmanConstants.LOGGER.warn("FAILED TO SEND PACKET : " + data.getPacketType().toString());
 		}
 		
 		if(callback!=null)

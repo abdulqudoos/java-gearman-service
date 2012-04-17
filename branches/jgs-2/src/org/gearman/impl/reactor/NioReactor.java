@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.gearman.impl.GearmanConstants;
 import org.gearman.impl.core.GearmanCallbackHandler;
 import org.gearman.impl.core.GearmanConnectionManager.ConnectCallbackResult;
 
@@ -93,7 +94,7 @@ public final class NioReactor {
 				assc.close();
 				it.remove();
 			} catch (IOException e) {
-				// TODO log error
+				GearmanConstants.LOGGER.warn("failed to close port",e);
 			}
 		}
 	}

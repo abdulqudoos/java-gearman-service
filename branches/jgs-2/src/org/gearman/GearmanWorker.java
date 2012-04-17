@@ -11,8 +11,8 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A Gearman Worker is responsible for executing jobs it receives from the Job
- * Server. A Worker registers with the Job Server the types of jobs that it may
+ * A Gearman Worker is responsible for executing the jobs it receives from the job
+ * server. A Worker registers with the Job Server the types of jobs that it may
  * execute, the server will use this information, along with other attributes,
  * to determine which Worker will execute a particular job request. As data is
  * generated or as a job's state changes, the worker passes this information
