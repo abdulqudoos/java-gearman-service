@@ -17,9 +17,7 @@ public interface GearmanJobEvent {
 	/**
 	 * The result's data
 	 * @return
-	 * 		The data defined by the result type. If data is not returned with the given result type,
-	 * 		<code>null</code> is return.
-	 * @see #hasData() 
+	 * 		The data defined by the result type.
 	 */
 	public byte[] getData();
 }

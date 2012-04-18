@@ -18,9 +18,8 @@ public interface GearmanClient extends GearmanService {
 	/**
 	 * Polls for the job status. This is a blocking operation. The current thread may block and wait
 	 * for the operation to complete
-	 * @param submittal
-	 * 		The {@link GearmanJobSubmittal} containing the information needed to query the correct
-	 * 		server for the correct job
+	 * @param jobHandle
+	 * 		The job handle of the of the job in question. 
 	 * @return
 	 * 		The job status of the job in question.
 	 * @throws IOException

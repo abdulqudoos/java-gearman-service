@@ -22,14 +22,12 @@ public interface GearmanLostConnectionPolicy {
 	 * If null is returned or some runtime exception is thrown, the default policy will be taken.
 	 * The default policy is normally to reconnect after a period of time.
 	 * 
-	 * @param adrs
-	 * 		The address of the server in question 
-	 * @param service
-	 * 		The gearman service calling this method
+	 * @param server
+	 * 		The server in question 
 	 * @param grounds
 	 * 		The grounds for calling this method
 	 * @return
-	 * 		An {@link Action} telling the gearman service what actions to take
+	 * 		An {@link GearmanLostConnectionAction} telling the gearman service what actions to take
 	 */
 	public GearmanLostConnectionAction lostConnection(GearmanServer server, GearmanLostConnectionGrounds grounds);
 	
@@ -44,10 +42,6 @@ public interface GearmanLostConnectionPolicy {
 	 * 
 	 * @param server
 	 * 		The local gearman server in question
-	 * @param service
-	 * 		The gearman service calling this method
-	 * @param grounds
-	 * 		The grounds for calling this method
 	 */
 	public void shutdownServer(GearmanServer server);
 }

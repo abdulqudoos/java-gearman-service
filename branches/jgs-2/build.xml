@@ -15,15 +15,17 @@
      isaiah.v                                                                
      ====================================================================== -->
 
-<project name="java-gearman-service" default="build-all" basedir="." >
+<project name="java-gearman-service" default="zipbuild" basedir="." >
 	
 	<!-- Current Project Version -->
-	<property name="version" value="0.6" />
+	<property name="version" value="0.6a" />
 	
 	<property name="build" location="./../builds/${ant.project.name}/${version}" />
 	<property name="build.src" location="${build}/src" />
 	<property name="build.bin" location="${build}/bin" />
 	<property name="build.javadoc" location="${build}/javadoc" />
+	
+	<property name="fullname" value="${ant.project.name}-${version}" />
 	
 	<property name="javac.target" value="1.7" />
 	
@@ -61,26 +63,23 @@
 	</target>
 	
 	<target depends="copy" name="javadoc">
-		<javadoc destdir="${build.javadoc}" sourcepath="${build.src}" packagenames="org.gearman" />
+		<javadoc destdir="${build.javadoc}" sourcepath="${build.src}" packagenames="org.gearman">
+			<classpath refid="jgs.classpath" />
+		</javadoc>
 	</target>
 	
-	<target depends="copy" name="zip-src">
-		<zip destfile="${build}/${ant.project.name}-${version}-source.zip">
-			<fileset dir="${build.src}" />
+	<target name="zipbuild" depends="jar, javadoc">
+		<zip destfile="${build}/${fullname}.zip">
+			<zipfileset dir="${build.javadoc}" prefix="javadoc"/>
+				<zipfileset dir="${build.src}" prefix="src"/>
+			<zipfileset dir="${project.lib}" prefix="lib"/>
+			<fileset file="${build}/${fullname}.jar" />
 			<fileset file="License.txt" />
 		</zip>
 	</target>
 	
-	<target depends="javadoc" name="zip-javadoc">
-		<zip defaultexcludes="no" destfile="${build}/${ant.project.name}-${version}-javadoc.zip" >
-			<fileset dir="${build.javadoc}" />
-		</zip>
-	</target>
-	
-	<target depends="zip-src, zip-javadoc" name="zip-all" />
-	
 	<target depends="build" name="jar">
-		<jar destfile="${build}/${ant.project.name}-${version}.jar" >
+		<jar destfile="${build}/${fullname}.jar" >
 			<fileset dir="${build.bin}" />
 			<fileset file="License.txt" />
 			<manifest>
@@ -92,10 +91,9 @@
 	</target>
 	
 	<target depends="copy" name="build">
-		<javac destdir="${build.bin}" srcdir="${build.src}" target="${javac.target}" source="${javac.target}" >
+		<javac destdir="${build.bin}" srcdir="${build.src}" target="${javac.target}" source="${javac.target}" includeantruntime="false" >
 			<classpath refid="jgs.classpath" />
 		</javac>
 	</target>
 	
-	<target depends="jar, zip-all" name="build-all" />
 </project>

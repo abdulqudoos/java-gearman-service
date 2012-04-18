@@ -27,7 +27,7 @@ public interface GearmanFunctionCallback {
 	 * has completed. Only while the job is executing can the callback methods
 	 * be used.<br>
 	 * 
-	 * @param data
+	 * @param warning
 	 *            Information to send on the data callback channel
 	 */
 	public void sendWarning(byte[] warning);

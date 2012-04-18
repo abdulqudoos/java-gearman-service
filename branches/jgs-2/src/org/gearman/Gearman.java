@@ -74,7 +74,7 @@ public abstract class Gearman implements GearmanService{
 	
 	/**
 	 * Starts a new local gearman job server running in the current address space. 
-	 * @param ports
+	 * @param port
 	 * 		The port number this server will listen on.
 	 * @return
 	 * 		A new gearman server instance
@@ -85,7 +85,7 @@ public abstract class Gearman implements GearmanService{
 	
 	/**
 	 * Starts a new local gearman job server running in the current address space. 
-	 * @param ports
+	 * @param port
 	 * 		The port numbers this server should listen on.
 	 * @param persistence
 	 * 		An application hook used to tell the server how to persist jobs
@@ -98,8 +98,10 @@ public abstract class Gearman implements GearmanService{
 	
 	/**
 	 * Creates an object representing a remote gearman job server
-	 * @param address
-	 * 		The address of the remote server
+	 * @param host
+	 * 		The address of the remote job server
+	 * @param port
+	 * 		The port number the job server is listening on
 	 * @return
 	 * 		An object representing a remote gearman job server
 	 */

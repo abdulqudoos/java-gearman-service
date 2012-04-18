@@ -6,11 +6,17 @@ package org.gearman;
  */
 public interface GearmanPersistable {
 	
+	/**
+	 * Returns the function name
+	 * @return
+	 * 		The function name
+	 */
 	public String getFunctionName();
 	
 	/**
-	 * The job data
+	 * Returns the jobs data
 	 * @return
+	 * 		The job data
 	 */
 	public byte[] getData();
 	

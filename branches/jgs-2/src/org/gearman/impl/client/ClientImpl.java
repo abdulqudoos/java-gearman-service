@@ -378,8 +378,8 @@ public class ClientImpl extends AbstractJobServerPool<ClientImpl.InnerConnection
 
 	@Override
 	public GearmanJobStatus getStatus(byte[] jobHandle) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO support this operation
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
