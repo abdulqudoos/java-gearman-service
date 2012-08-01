@@ -37,7 +37,7 @@ import org.gearman.GearmanJobReturn;
 public class GearmanJobReturnImpl implements GearmanJobReturn, BackendJobReturn {
 
 	private boolean isEOF = false;
-	private final Deque<GearmanJobEvent> eventList = new LinkedList<>();
+	private final Deque<GearmanJobEvent> eventList = new LinkedList<GearmanJobEvent>();
 	
 	@Override
 	public synchronized GearmanJobEvent poll() throws InterruptedException {

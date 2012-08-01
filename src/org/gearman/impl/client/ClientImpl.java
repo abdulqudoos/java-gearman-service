@@ -265,6 +265,8 @@ public class ClientImpl extends AbstractJobServerPool<ClientImpl.InnerConnection
 			case DROPPED:
 				assert false;
 				break;
+			default:
+				throw new IllegalStateException("Unknown State:" + oldState);
 			}
 		}
 	}

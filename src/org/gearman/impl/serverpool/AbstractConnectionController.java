@@ -341,6 +341,8 @@ public abstract class AbstractConnectionController implements ConnectionControll
 				break;
 			case CLOSED:
 				break;
+			default:
+				throw new IllegalStateException("Unknown Connection State");
 			}
 			
 			this.state = ControllerState.WAITING;
@@ -478,7 +480,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 		
 		synchronized(this.lock) {
 			if(this.isDropped()) {
-				return new TaskJoin<>(GearmanJobStatusImpl.NOT_KNOWN);
+				return new TaskJoin<GearmanJobStatus>(GearmanJobStatusImpl.NOT_KNOWN);
 			}
 			
 			if(this.pendingJobStatus==null)
@@ -489,7 +491,7 @@ public abstract class AbstractConnectionController implements ConnectionControll
 			if(value!=null)
 				return value;
 			else
-				value = new TaskJoin<>();
+				value = new TaskJoin<GearmanJobStatus>();
 			
 			this.pendingJobStatus.put(jobHandle, value);
 			

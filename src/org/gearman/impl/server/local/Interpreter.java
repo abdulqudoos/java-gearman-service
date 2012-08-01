@@ -218,23 +218,22 @@ final class Interpreter {
 		else
 			args0 = args0.toUpperCase();
 		
-		switch(args0) {
-		case "WORKERS":
+		if("WORKERS".equals(args0)) {
 			text_workers(args, client);
 			return;
-		case "STATUS":
+		} else if ("STATUS".equals(args0)) {
 			text_status(args, client);
 			return;
-		case "MAXQUEUE":
+		} else if("MAXQUEUE".equals(args0)) {
 			text_maxqueue(args, client);
 			return;
-		case "SHUTDOWN":
+		} else if ("SHUTDOWN".equals(args0)) {
 			text_shutdown(args, client);
 			return;
-		case "VERSION":
+		} else if("VERSION".equals(args0)) {
 			text_version(args, client);
 			return;
-		default:
+		} else {
 			client.sendPacket(StaticPackets.TEXT_UNKNOWN_COMMAND, null);
 		}
 	}

@@ -54,9 +54,19 @@ public class GearmanProperties {
 		final File propertiesFile = new File(PROPERTIES_FILE_PATH);
 		
 		if(propertiesFile.canRead()) {
-			try (FileInputStream in = new FileInputStream(propertiesFile)){
+			FileInputStream in = null;
+			try {
+				in = new FileInputStream(propertiesFile);
 				PROPERTIES.load(in);
+				in.close();
 			} catch(IOException ioe) {
+				
+				if(in!=null) try {
+					in.close();
+				} catch (IOException ioe2) {
+					// nothing to do
+				}
+				
 				Logger logger = LoggerFactory.getLogger(getProperty(PropertyName.GEARMAN_LOGGER_NAME));
 				logger.warn("failed to load properties", ioe);
 			}
@@ -74,12 +84,16 @@ public class GearmanProperties {
 	public static void save() throws IOException {
 		final File propertiesFile = new File(PROPERTIES_FILE_PATH);
 		
-		try (FileOutputStream out = new FileOutputStream(propertiesFile)){
+		FileOutputStream out = null;
+		try  {
+			out = new FileOutputStream(propertiesFile);
 			PROPERTIES.store(out, null);
+			out.close();
 		} catch (IOException ioe) {
 			Logger logger = LoggerFactory.getLogger(getProperty(PropertyName.GEARMAN_LOGGER_NAME));
 			logger.warn("failed to save properties", ioe);
 			
+			if(out!=null) out.close();
 			throw ioe;
 		}
 	}

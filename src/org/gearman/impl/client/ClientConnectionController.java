@@ -53,7 +53,7 @@ abstract class ClientConnectionController extends AbstractConnectionController {
 	/**
 	 * The set of executing jobs. The key is the job's handle and the value is the job itself
 	 */
-	private final ConcurrentHashMap<ByteArray, BackendJobReturn> jobs = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<ByteArray, BackendJobReturn> jobs = new ConcurrentHashMap<ByteArray, BackendJobReturn>();
 	private ClientJobSubmission pendingJob = null;
 	
 	private long responceTimeout = Long.MAX_VALUE;

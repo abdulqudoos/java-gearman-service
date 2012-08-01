@@ -30,12 +30,12 @@ package org.gearman.impl.core;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.CompletionHandler;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.gearman.impl.core.GearmanConnection.SendCallbackResult;
+import org.gearman.impl.reactor.CompletionHandler;
 import org.gearman.impl.reactor.NioReactor;
 import org.gearman.impl.reactor.Socket;
 import org.gearman.impl.reactor.SocketHandler;
@@ -263,13 +263,13 @@ public class GearmanConnectionManager {
 		}
 
 		@Override
-		public void completed(ByteBuffer result, Void attachment) {
+		public void onComplete(ByteBuffer result, Void attachment) {
 			if(this.callback!=null)
 				this.callback.onComplete(packet, SendCallbackResult.SEND_SUCCESSFUL);
 		}
 
 		@Override
-		public void failed(Throwable exc, Void attachment) {
+		public void onFailure(Throwable exc, Void attachment) {
 			if(this.callback!=null)
 				this.callback.onComplete(packet, SendCallbackResult.SEND_FAILED);
 		}

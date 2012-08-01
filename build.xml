@@ -38,7 +38,7 @@
 	<property name="fullname" value="${ant.project.name}-${project.version}" />
 	
 	<!-- Define the target enviornment -->
-	<property name="javac.target" value="1.7" />	
+	<property name="javac.target" value="1.6" />	
 	
 	
 	<!-- Define the build time classpath -->

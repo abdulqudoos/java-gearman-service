@@ -64,7 +64,7 @@ public class GearmanServerLocal implements GearmanServerInterface, GearmanConnec
 	
 	private boolean isShutdown = false;
 	
-	private final Set<ServerShutdownListener> listeners = new HashSet<>();
+	private final Set<ServerShutdownListener> listeners = new HashSet<ServerShutdownListener>();
 	
 	public GearmanServerLocal(GearmanImpl gearman, GearmanPersistence persistence, int port) throws IOException {
 		this(gearman, persistence, createID(port), port);

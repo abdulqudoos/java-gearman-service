@@ -58,8 +58,7 @@ public abstract class Gearman implements GearmanService {
 			final Object o = implClass.newInstance();
 
 			return (Gearman) o;
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException e) {
+		} catch (ClassNotFoundException e) {
 
 			/*
 			 * If an exception occurs, there is something wrong with the class
@@ -67,6 +66,10 @@ public abstract class Gearman implements GearmanService {
 			 * unrecoverable. An error must be thrown
 			 */
 
+			throw new Error("failed to initialize gearman", e);
+		} catch (InstantiationException e) {
+			throw new Error("failed to initialize gearman", e);
+		} catch (IllegalAccessException e) {
 			throw new Error("failed to initialize gearman", e);
 		}
 	}

@@ -1,279 +1,318 @@
 /*
- * Copyright (c) 2012, Isaiah van der Elst (isaiah.v@comcast.net)
- * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- * - Redistributions of source code must retain the above copyright notice,
- *   this list of conditions and the following disclaimer.
- *   
- * - Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
- *   
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Copyright (C) 2010 by Isaiah van der Elst <isaiah.v@comcast.net>
+ * Use and distribution licensed under the BSD license.  See
+ * the COPYING file in the parent directory for full text.
  */
 
 package org.gearman.impl.reactor;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.StandardSocketOptions;
+import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
-import java.util.LinkedList;
+import java.nio.channels.AsynchronousCloseException;
+import java.nio.channels.CancelledKeyException;
+import java.nio.channels.ClosedByInterruptException;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.NotYetConnectedException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.gearman.impl.GearmanConstants;
+final class SocketImpl<X> extends AbstractSocket<X> implements DispatcherHandler {
 
-final class SocketImpl<A> implements Socket<A>, CompletionHandler<Integer, Object> {
-	
-	private final AsynchronousSocketChannel socketChannel;
-	private final InetSocketAddress local;
-	private final InetSocketAddress remote;
-	
-	private final SocketHandler<A> handler;
-	
-	private A att;
-	private ByteBuffer buffer;
-	
-	private final Queue<Writter<?>> writters;
-	private boolean isWriting;
-	
-	private boolean isClosed = false;
-	
-	SocketImpl(AsynchronousSocketChannel socketChannel, SocketHandler<A> handler) throws IOException {
-		this.local = (InetSocketAddress) socketChannel.getLocalAddress();
-		this.remote = (InetSocketAddress) socketChannel.getRemoteAddress();
+	private final class WriteEvent<A> implements Runnable {
+		public final ByteBuffer data;
+		public final A attachment;
+		public final CompletionHandler<ByteBuffer, A> handler;
 		
-		this.socketChannel = socketChannel;
+		public Throwable th = null;
 		
-		this.handler = handler;
-		this.buffer = handler.createSocketBuffer();
-		
-		writters = new LinkedList<Writter<?>>();
+		public WriteEvent(final ByteBuffer data, A att, CompletionHandler<ByteBuffer, A> handler) {
+			this.data = data;
+			this.attachment = att;
+			this.handler = handler;
+		}
+
+		@Override
+		public void run() {
+			if(th!=null)
+				handler.onFailure(th, attachment);
+			else
+				handler.onComplete(data, attachment);
+		}
 	}
 	
+	private final NioReactor reactor; 
+	private final SocketChannel sChannel;
+	
+	private final SocketHandler<X> sHandler;
+	
+	private final Queue<WriteEvent<?>> writeEvents = new ConcurrentLinkedQueue<WriteEvent<?>>();
+	private SelectionKey key;
+	
+	private ByteBuffer buffer;
+	private int bytes;
+	
+	private final Runnable onAccept = new Runnable() {
+		public void run() {
+			assert SocketImpl.this.sHandler!=null;
+			assert SocketImpl.this.key!=null;
+			
+			SocketImpl.this.sHandler.onAccept(SocketImpl.this);
+			SocketImpl.this.markReadable();
+		}
+	};
+	
+	private final Runnable onDisconnect = new Runnable() {
+		public void run() {
+			try {
+				SocketImpl.this.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	};
+	
+	private final Runnable onRead = new Runnable() {
+		public void run() {
+			assert SocketImpl.this.sHandler!=null;
+			assert SocketImpl.this.key!=null;
+			assert (SocketImpl.this.key.interestOps() & SelectionKey.OP_READ) == 0;
+			
+			SocketImpl.this.sHandler.onRead(bytes, SocketImpl.this);
+			SocketImpl.this.markReadable();
+		}
+	};
+	
+	public SocketImpl(final SocketChannel sChannel, final SocketHandler<X> sHandler, final NioReactor reactor) {
+		this.sChannel = sChannel;
+		try {
+			sChannel.socket().setTcpNoDelay(true);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.sHandler = sHandler;
+		this.reactor = reactor;
+		
+		if((this.buffer=sHandler.createSocketBuffer())==null) {
+			this.buffer = ByteBuffer.allocateDirect(1024);
+		}
+	}
+
 	@Override
-	public void close() {
-		synchronized(this) {
-			if(this.isClosed) return;
-			this.isClosed = true;
+	public void close() throws IOException {
+		synchronized(this.sChannel) {
+			if(!this.sChannel.isOpen()) return;
+			this.sChannel.close();
 		}
 		
-		if(this.writters.isEmpty())
-			this.closeConnection();
-	}
-
-	@Override
-	public A getAttachment() {
-		return att;
+		this.sHandler.onDisconnect(this);
 	}
 
 	@Override
 	public ByteBuffer getByteBuffer() {
-		return buffer;
+		return this.buffer;
 	}
 
 	@Override
-	public InetAddress getInetAddress() {
-		return this.remote.getAddress();
+	public final SocketChannel getSelectableChannel() {
+		/* Runs on dispatcher thread */
+		return this.sChannel;
 	}
 
 	@Override
-	public boolean getKeepAlive() throws IOException {
-		return this.socketChannel.getOption(StandardSocketOptions.SO_KEEPALIVE);
-	}
-
-	@Override
-	public InetAddress getLocalAddress() {
-		return this.local.getAddress();
-	}
-
-	public final void read() {
-		this.socketChannel.read(this.buffer, null, this);
-	}
-	
-	@Override
-	public int getLocalPort() {
-		return this.local.getPort();
-	}
-
-	@Override
-	public SocketAddress getLocalSocketAddress() {
-		return this.local;
-	}
-
-	@Override
-	public int getPort() {
-		return this.remote.getPort();
-	}
-
-	@Override
-	public SocketAddress getRemoteSocketAddress() {
-		return this.remote;
-	}
-
-	@Override
-	public boolean getTcpNoDelay() throws IOException {
-		return this.socketChannel.getOption(StandardSocketOptions.TCP_NODELAY);
+	protected Socket getUnderlyingSocket() {
+		return this.sChannel.socket();
 	}
 
 	@Override
 	public boolean isClosed() {
-		return this.isClosed;
+		return !this.sChannel.isOpen();
 	}
-
+	
+	private final void markNotReadable() {
+		assert this.key!=null;
+		
+		try {
+			synchronized(this.key) {
+				this.key.interestOps(this.key.interestOps() & (~SelectionKey.OP_READ));
+			}
+		} catch (CancelledKeyException cke) {
+			cke.printStackTrace();
+			/*
+			 * There is nothing to do here. If this exception has been thrown, it's because the
+			 * client has disconnected or been disconnected. The catch is simple to prevent the
+			 * the stack trace from being printed.
+			 */
+		}
+		this.key.selector().wakeup();
+	}
+	
+	private final void markNotWritable() {
+		assert this.key!=null;
+		
+		try {
+			synchronized(this.key) {
+				this.key.interestOps(this.key.interestOps() & (~SelectionKey.OP_WRITE));
+			}
+		} catch (CancelledKeyException cke) {
+			cke.printStackTrace();
+			/*
+			 * There is nothing to do here. If this exception has been thrown, it's because the
+			 * client has disconnected or been disconnected. The catch is simple to prevent the
+			 * the stack trace from being printed.
+			 */
+		}
+		this.key.selector().wakeup();
+	}
+	
+	private final void markReadable() {
+		assert this.key!=null;
+		
+		try {
+			synchronized(this.key) {
+				this.key.interestOps(this.key.interestOps() | SelectionKey.OP_READ);
+			}
+		} catch (CancelledKeyException cke) {
+			cke.printStackTrace();
+			/*
+			 * There is nothing to do here. If this exception has been thrown, it's because the
+			 * client has disconnected or been disconnected. The catch is simple to prevent the
+			 * the stack trace from being printed.
+			 */
+		}
+		
+		this.key.selector().wakeup();
+		
+	}
+	
+	private final void markWritable() {
+		assert this.key!=null;
+		
+		try {
+			synchronized(this.key) {
+				this.key.interestOps(this.key.interestOps() | SelectionKey.OP_WRITE);
+			}
+		} catch (CancelledKeyException cke) {
+			cke.printStackTrace();
+			/*
+			 * There is nothing to do here. If this exception has been thrown, it's because the
+			 * client has disconnected or been disconnected. The catch is simple to prevent the
+			 * the stack trace from being printed.
+			 */
+		}
+		this.key.selector().wakeup();
+	}
+	
 	@Override
-	public void setAttachment(A att) {
-		this.att = att;
+	public final void onComplete(final SelectionKey key) throws IOException {
+		
+		if(key==null) {
+			synchronized(this.sChannel) {
+				this.sChannel.close();
+			}
+		} else {
+			this.key = key;
+			this.reactor.getWorkerPool().execute(this.onAccept);
+		}
 	}
-
+	
+	@Override
+	public final void onRead() {
+		try {
+			if(!this.sChannel.isOpen()) return;
+			
+			this.bytes =  this.sChannel.read(buffer);
+			if(bytes==-1) {
+				this.close();
+				this.reactor.getWorkerPool().execute(this.onDisconnect);
+				return;
+			}
+			
+			SocketImpl.this.markNotReadable();
+			this.reactor.getWorkerPool().execute(this.onRead);
+			
+		} catch (NotYetConnectedException nyce){
+			nyce.printStackTrace();
+			// If a read event comes in, the socket should be connected
+			assert false;
+		} catch(ClosedByInterruptException cbie) {
+			cbie.printStackTrace();
+			// Should never end up here
+			assert false;
+		} catch( AsynchronousCloseException ace) {
+			// Do nothing, allow other thread to close the socket
+			ace.printStackTrace();
+		} catch (ClosedChannelException cce) {
+			// It is possible for the connection to be closed before the read method is called.  But this is normal, do nothing
+			cce.printStackTrace();
+		} catch (IOException e) {
+			// TODO do something with this
+			try {
+				this.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+	}
 	@Override
 	public void setByteBuffer(ByteBuffer buffer) {
+		if(buffer==null) throw new IllegalArgumentException("null buffer");
 		this.buffer = buffer;
 	}
-
-	@Override
-	public void setKeepAlive(boolean on) throws IOException {
-		this.socketChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, on);
-	}
-
-	@Override
-	public void setTcpNoDelay(boolean on) throws IOException {
-		this.socketChannel.setOption(StandardSocketOptions.TCP_NODELAY, on);
-	}
-
-	@Override
-	public <A2> void write(ByteBuffer data, A2 att, CompletionHandler<ByteBuffer, A2> callback) {
-		synchronized(this.writters) {
-			this.writters.add(new Writter<A2>(data, att, callback));
-			
-			if(this.isWriting) return;
-			this.isWriting=true;
-		}
-		this.writeNext();
-	}
 	
-	private final void writeNext() {
-		assert this.isWriting;
+	@Override
+	public final void onWrite() {
 		
-		final Writter<?> writter;
-		synchronized(this.writters) {
-			writter = this.writters.poll();;
-			
-			if(writter==null) {
-				this.isWriting = false;
-				if(this.isClosed && this.writters.isEmpty())
-					this.closeConnection();
+		synchronized(this.writeEvents) {
+			if(this.writeEvents.isEmpty()) {
+				this.markNotWritable();
 				return;
-			}	
-			this.isWriting=true;
-		}
-		writter.write();
-	}
-	
-	@Override
-	public void completed(Integer result, Object attachment) {
-		// result equals the number of bytes read in, or -1 if EOF was reached
-		
-		// Attachment is null
-		
-		if(result==-1) {
-			// EOF
-			
-			this.closeConnection();
-			return;
-		}
-		
-		this.handler.onRead(result,this);
-		this.socketChannel.read(buffer, null, this);
-	}
-	
-	@Override
-	public void failed(Throwable exc, Object attachment) {
-		// Read throws:
-		//  * IllegalArgumentException
-		//  * ReadPendingException 
-		//  * NotYetConnectedException
-		//  * ShutdownChannelGroupException 
-		
-		// Attachment is null
-		
-		// An IOException is sometimes thrown when the server suddenly disconnects
-		if(exc instanceof IOException) {
-			this.writters.clear();
-			this.close();
-			this.setAttachment(null);
-			return;
-		}
-		
-		// None of the thrown exceptions should ever be thrown
-		// TODO log error
-		assert false;
-	}
-	
-	private final void closeConnection() {
-		try {
-			this.socketChannel.close();
-		} catch (IOException ioe) {
-			GearmanConstants.LOGGER.warn("Failed to close connection", ioe);
-		} catch (Throwable th) {
-			GearmanConstants.LOGGER.warn("Unexspected Exception", th);
-		} finally {
-			this.handler.onDisconnect(this);
-		}
-	}
-	
-	private final class Writter<A2> implements CompletionHandler<Integer, Object> {
-		private final ByteBuffer data;
-		private final A2 att;
-		private final CompletionHandler<ByteBuffer, A2> callback;
-		
-		public Writter(ByteBuffer data, A2 att, CompletionHandler<ByteBuffer, A2> callback) {
-			this.data = data;
-			this.att = att;
-			this.callback = callback;
-		}
-	
-		public void write() {
-			if(this.data.hasRemaining()) {
-				SocketImpl.this.socketChannel.write(this.data, null, this);
-			} else {
-				SocketImpl.this.writeNext();
-				
-				try {
-					if(this.callback!=null) this.callback.completed(data, att);
-				} catch (Throwable th) {
-					// user threw exception
-					th.printStackTrace();
-				}
 			}
 		}
 		
-		@Override
-		public void completed(Integer result, Object attachment) {
-			this.write();
+		final WriteEvent<?> event=this.writeEvents.peek();
+		assert event != null;
+		
+		try {
+			
+			this.sChannel.write(event.data);
+			if(!event.data.hasRemaining()) {
+				final Object o = this.writeEvents.poll();
+				assert event.equals(o);
+				assert event.handler!=null;
+				
+				SocketImpl.this.reactor.getWorkerPool().execute(event);
+			}
+			
+		} catch (final IOException ioe) {
+			ioe.printStackTrace();
+			
+			final Object o = this.writeEvents.poll();
+			assert event.equals(o);
+			
+			event.th = ioe;
+			SocketImpl.this.reactor.getWorkerPool().execute(event);
 		}
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		this.close();
+	}
 
-		@Override
-		public void failed(Throwable exc, Object attachment) {
-			SocketImpl.this.writeNext();
-			if(this.callback!=null) this.callback.failed(exc, att);
+	@Override
+	public <A> void write(ByteBuffer data, A att, CompletionHandler<ByteBuffer, A> handler) {
+		this.writeEvents.add(new WriteEvent<A>(data, att, handler));
+		
+		synchronized(this.writeEvents) {
+			this.markWritable();
 		}
 	}
 }

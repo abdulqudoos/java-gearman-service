@@ -63,12 +63,12 @@ public class GearmanServerRemote implements GearmanServerInterface {
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 	
 	/** The connections created by this GearmanServerRemote */
-	private final Set<GearmanConnection<?>> connections = new HashSet<>();
+	private final Set<GearmanConnection<?>> connections = new HashSet<GearmanConnection<?>>();
 	
 	/** A variable indicating if this GearmanServerRemote is shutdown */
 	private boolean isShutdown = false;
 	
-	private final Set<ServerShutdownListener> listeners = new HashSet<>();
+	private final Set<ServerShutdownListener> listeners = new HashSet<ServerShutdownListener>();
 	
 	/**
 	 * Constructor
@@ -155,7 +155,7 @@ public class GearmanServerRemote implements GearmanServerInterface {
 		try {
 			lock.readLock().lock();
 			if(!(isShutdown=this.isShutdown())) {
-				final InnerGearmanConnectionHandler<A> innerHandler = new InnerGearmanConnectionHandler<>(handler, failCallback);
+				final InnerGearmanConnectionHandler<A> innerHandler = new InnerGearmanConnectionHandler<A>(handler, failCallback);
 				gearman.getGearmanConnectionManager().createGearmanConnection(adrs, innerHandler, innerHandler);
 			}
 		} finally {
