@@ -1,10 +1,11 @@
-<!-- 
-
-	Usage examples for the java-gearman-service
-
- -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <name>java-gearman-service examples</name>
+	<url>http://code.google.com/p/java-gearman-service/</url>
+	<organization>
+		<name>gearman</name>
+		<url>http://gearman.org</url>
+	</organization>
     
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>java-gearman-service</groupId>
@@ -19,6 +20,8 @@
 	
 	<build>
 		<plugins>
+		    
+		    <!-- Compile -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
@@ -27,6 +30,43 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			
+			<!-- Source -->
+		    <plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-source-plugin</artifactId>
+        		<version>2.2.1</version>
+        		<executions>
+          			<execution>
+            			<id>attach-sources</id>
+            			<phase>package</phase>
+            			<goals>
+              				<goal>jar</goal>
+            			</goals>
+          			</execution>
+        		</executions>
+      		</plugin>
+      		
+		    <plugin>
+      		    <artifactId>maven-assembly-plugin</artifactId>
+        		<version>2.4</version>
+        		<configuration>
+        		    <appendAssemblyId>false</appendAssemblyId>
+	          		<descriptors>
+	            		<descriptor>src/main/assembly/zip.xml</descriptor>
+	          		</descriptors>
+        		</configuration>
+        		<executions>
+        		    <execution>
+            			<id>assembly</id>
+            			<phase>package</phase>
+            			<goals>
+              				<goal>single</goal>
+            			</goals>
+          			</execution>
+        		</executions>
+			</plugin>
+		    
 		</plugins>
 	</build>
 	
@@ -43,8 +83,8 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>${slf4j-simple.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 		
 	</dependencies>
-  
 </project>
