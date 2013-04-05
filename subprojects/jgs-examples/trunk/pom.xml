@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     
-    <name>java-gearman-service examples</name>
+    <name>JGS Examples</name>
 	<url>http://code.google.com/p/java-gearman-service/</url>
 	<organization>
 		<name>gearman</name>
@@ -16,6 +16,10 @@
 	<properties>
 	    <slf4j-simple.version>[1.6,2.0)</slf4j-simple.version>
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	    
+	    <assembly.licence>License.txt</assembly.licence>
+	    <assembly.licence.dir>src/main/resources</assembly.licence.dir>
+	    <assembly.lib.dest>lib</assembly.lib.dest>
 	</properties>
 	
 	<build>
