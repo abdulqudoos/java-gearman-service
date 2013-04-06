@@ -29,8 +29,8 @@ If you need the very latest build and latest but fixes that have yet to be relea
 
 
 {{{
-    <!-- java-gearman-service -->
-    <dependency>
+   <!-- java-gearman-service -->
+   <dependency>
       <groupId>org.gearman.jgs</groupId>
       <artifactId>java-gearman-service</artifactId>
       <version>[0.7.0-SNAPSHOT,)</version>
