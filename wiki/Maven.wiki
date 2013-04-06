@@ -19,43 +19,38 @@ The java-gearman-service and its sub-projects are officially hosted at sonatype.
 }}}
 
 
-== java-gearman-service ==
+== Java Gearman Service ==
 
-The main project. These are libraries for the gearman client, work, and server.
+The core project. These are main libraries for the gearman client, work, and server.
 
 === Snapshot (Latest & Greatest)===
 If you need the very latest build and latest but fixes that have yet to be released, include the following dependency in your pom.
 
 
-==== binary ==== 
 {{{
+    <!-- jgs bin -->
     <dependency>
       <groupId>org.gearman.jgs</groupId>
       <artifactId>java-gearman-service</artifactId>
       <version>[0.7.0-SNAPSHOT,)</version>
    </dependency>
-}}}
-<br>
 
-==== source =====
-{{{
+   <!-- jgs source -->
     <dependency>
       <groupId>org.gearman.jgs</groupId>
       <artifactId>java-gearman-service</artifactId>
       <version>[0.7.0-SNAPSHOT,)</version>
       <classifier>sources</classifier>
-   </dependency>
-}}}
-<br>
+   </dependency>   
 
-==== javadoc (api only) ====
-{{{
-    <dependency>
+   <!-- jgs javadoc (api only) -->
+   <dependency>
       <groupId>org.gearman.jgs</groupId>
       <artifactId>java-gearman-service</artifactId>
       <version>[0.7.0-SNAPSHOT,)</version>
       <classifier>javadoc</classifier>
    </dependency>
+
 }}}
 
 
