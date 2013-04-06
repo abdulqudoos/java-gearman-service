@@ -12,6 +12,7 @@ The java-gearman-service is available through maven!
 The java-gearman-service and its sub-projects are officially hosted at sonatype. Configure your project's pom to include the following repository:
 
 {{{
+   <!-- sonatype -->
    <repository>
       <id>sonatype</id>
       <url>https://oss.sonatype.org/content/groups/public</url>
@@ -28,29 +29,12 @@ If you need the very latest build and latest but fixes that have yet to be relea
 
 
 {{{
-    <!-- jgs bin -->
+    <!-- java-gearman-service -->
     <dependency>
       <groupId>org.gearman.jgs</groupId>
       <artifactId>java-gearman-service</artifactId>
       <version>[0.7.0-SNAPSHOT,)</version>
    </dependency>
-
-   <!-- jgs source -->
-    <dependency>
-      <groupId>org.gearman.jgs</groupId>
-      <artifactId>java-gearman-service</artifactId>
-      <version>[0.7.0-SNAPSHOT,)</version>
-      <classifier>sources</classifier>
-   </dependency>   
-
-   <!-- jgs javadoc (api only) -->
-   <dependency>
-      <groupId>org.gearman.jgs</groupId>
-      <artifactId>java-gearman-service</artifactId>
-      <version>[0.7.0-SNAPSHOT,)</version>
-      <classifier>javadoc</classifier>
-   </dependency>
-
 }}}
 
 
