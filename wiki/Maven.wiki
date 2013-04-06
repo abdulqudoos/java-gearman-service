@@ -1,12 +1,14 @@
 #labels Featured
 #Maven
+<wiki:toc max_depth="3" />
 
 = Maven =
 
 The java-gearman-service is available through maven!
 
-=== repository ===
+== Repository ==
 
+=== Sonatype ===
 The java-gearman-service and its sub-projects are officially hosted at sonatype. Configure your project's pom to include the following repository:
 
 {{{
@@ -31,3 +33,5 @@ If you need the very latest build and latest but fixes that have yet to be relea
       <version>[0.7.0-SNAPSHOT,)</version>
    </dependency>
 }}}
+
+== Example POM ==
