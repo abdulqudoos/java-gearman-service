@@ -3,6 +3,12 @@
 
 = Maven =
 
+The java-gearman-service is available through maven!
+
+=== repository ===
+
+The java-gearman-service and its sub-projects are officially hosted at sonatype. Configure your project's pom to include the following repository:
+
 {{{
    <repository>
       <id>sonatype</id>
@@ -13,7 +19,10 @@
 
 == java-gearman-service ==
 
+The main project. These are libraries for the gearman client, work, and server.
+
 === Snapshot (Latest & Greatest)===
+If you need the very latest build and latest but fixes that have yet to be released, include the following dependency in your pom.
 
 {{{
     <dependency>
