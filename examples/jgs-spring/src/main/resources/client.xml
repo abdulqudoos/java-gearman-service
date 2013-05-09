@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+    	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    ">
+
+    <context:annotation-config />
+    <!-- read properties -->
+    <context:property-placeholder location="classpath:client.properties"/>
+    
+    <bean id="echoClient" class="org.gearman.spring.examples.echo.EchoClient">
+        <property name="functionName" value="${echo.name}" />
+        <property name="data" value="${echo.data}" />
+    </bean>
+    
+    <!-- define the gearman instance -->
+	<bean id="gearman" class="org.gearman.spring.GearmanFactory" />
+	
+	<!-- an abstract bean that contaoin  -->
+	<bean id="gearmanService" abstract="true">
+	    <property name="gearman" ref="gearman"/>
+	</bean>
+	
+	<!-- define all of the worker's servers -->
+	<bean id="gearmanServers" class="org.gearman.spring.GearmanServerArrayFactory" parent="gearmanService">
+		<!-- defines the set of remote gearman servers -->
+		<property name="servers" value="${echo.servers}" />
+	</bean>
+	
+	<bean id="gearmanClient" class="org.gearman.spring.GearmanClientFactory" parent="gearmanService">
+	    <property name="servers" ref="gearmanServers" />
+	</bean>
+
+</beans>

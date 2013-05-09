@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
+    	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    ">
+
+    <!-- read properties -->
+    <context:property-placeholder location="classpath:worker-server.properties"/>
+    <!-- <context:property-placeholder location="classpath:worker.properties"/> -->
+    
+    <!-- define the gearman instance -->
+	<bean id="gearman" class="org.gearman.spring.GearmanFactory" />
+	
+	<!-- an abstract bean that contaoin  -->
+	<bean id="gearmanService" abstract="true">
+	    <property name="gearman" ref="gearman"/>
+	</bean>
+	
+	<!-- define all of the worker's servers -->
+	<bean id="gearmanServers" class="org.gearman.spring.GearmanServerArrayFactory" parent="gearmanService">
+		
+		<!-- defines the set of remote gearman servers -->
+		<property name="servers" value="${echo.servers}" />
+		
+		<!-- defines the set of locally running gearman servers -->
+		<property name="ports" value="${echo.ports}" />
+	</bean>
+	
+	<!-- define the function bean -->
+	<bean id="reverseFunction" class="org.gearman.spring.GearmanFunctionBean">
+	    <!-- function name -->
+	    <property name="name" value="${echo.name}" />
+	    
+	    <!-- function implementation -->
+	    <property name="function" >
+	        <bean class="org.gearman.spring.examples.echo.EchoFunction" />
+	    </property>
+	</bean>
+	
+	<!-- setup the gearman worker -->
+	<bean id="gearmanWorker" class="org.gearman.spring.GearmanWorkerFactory" parent="gearmanService">
+		
+	    <!-- define the set of servers to communicate with -->
+		<property name="servers" ref="gearmanServers" />
+		
+		<!-- define the set of functions that it knows how to perform -->
+		<property name="functions">
+		    <array>
+		        <ref bean="reverseFunction" />
+		    </array>
+		</property>
+		
+	</bean>
+
+</beans>
