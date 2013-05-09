@@ -4,12 +4,12 @@ import org.gearman.GearmanFunction;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
- * A function name and {@link GearmanFunction} bean 
+ * A bean that defines a function. It contains the function name and function implementation 
  * @author isaiah
  */
 public class GearmanFunctionBean {
 	
-	private String functionName;
+	private String name;
 	private GearmanFunction function;
 	
 	public GearmanFunction getFunction() {
@@ -21,13 +21,12 @@ public class GearmanFunctionBean {
 		this.function = function;
 	}
 
-	public String getFunctionName() {
-		return functionName;
+	public String getName() {
+		return name;
 	}
 	
 	@Required
-	public void setFunctionName(String functionName) {
-		this.functionName = functionName;
+	public void setName(String functionName) {
+		this.name = functionName;
 	}
-	
 }

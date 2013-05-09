@@ -39,4 +39,14 @@ public class GearmanFactory implements FactoryBean, DisposableBean, Initializing
 	public void destroy() throws Exception {
 		this.gearman.shutdown();
 	}
+
+	public Gearman getGearman() {
+		return gearman;
+	}
+
+	public void setGearman(Gearman gearman) {
+		this.gearman = gearman;
+	}
+	
+	
 }

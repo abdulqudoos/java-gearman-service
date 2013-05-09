@@ -1,7 +1,5 @@
 package org.gearman.spring;
 
-import java.util.List;
-
 import org.gearman.Gearman;
 import org.gearman.GearmanClient;
 import org.gearman.GearmanLostConnectionPolicy;
@@ -17,7 +15,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class GearmanClientFactory implements FactoryBean, InitializingBean {
 	
 	private Gearman gearman;
-	private List<GearmanServer> gearmanServers;
+	private GearmanServer[] servers;
 	private String clientId;
 	private GearmanLostConnectionPolicy lostConnectionPolicy;
 	
@@ -40,7 +38,7 @@ public class GearmanClientFactory implements FactoryBean, InitializingBean {
 	public void afterPropertiesSet() {
 		GearmanClient client = gearman.createGearmanClient();
 		
-		if(gearmanServers!=null) for(GearmanServer server : gearmanServers)
+		if(servers!=null) for(GearmanServer server : servers)
 			client.addServer(server);
 		
 		if(clientId!=null)
@@ -51,9 +49,6 @@ public class GearmanClientFactory implements FactoryBean, InitializingBean {
 		this.client = client;
 	}
 	
-	/**
-	 * Returns <code>GearmanClient.class</code>
-	 */
 	@Override
 	public Class<GearmanClient> getObjectType() {
 		return GearmanClient.class;
@@ -89,32 +84,18 @@ public class GearmanClientFactory implements FactoryBean, InitializingBean {
 		this.gearman = gearman;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	public List<GearmanServer> getGearmanServers() {
-		return gearmanServers;
+
+	@Required
+	public void setServers(GearmanServer[] servers) {
+		this.servers = servers;
 	}
 
-	public void setGearmanServers(List<GearmanServer> gearmanServers) {
-		this.gearmanServers = gearmanServers;
-	}
-
-	public String getClientId() {
-		return clientId;
-	}
 
 	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
 
-	public GearmanLostConnectionPolicy getLostConnectionPolicy() {
-		return lostConnectionPolicy;
-	}
-
-	public void setLostConnectionPolicy(
-			GearmanLostConnectionPolicy lostConnectionPolicy) {
+	public void setLostConnectionPolicy(GearmanLostConnectionPolicy lostConnectionPolicy) {
 		this.lostConnectionPolicy = lostConnectionPolicy;
 	}
 }

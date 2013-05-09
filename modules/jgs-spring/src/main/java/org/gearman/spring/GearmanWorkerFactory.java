@@ -1,6 +1,5 @@
 package org.gearman.spring;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.gearman.Gearman;
@@ -11,11 +10,11 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Required;
 
-public class GearmanWorkerFactory implements FactoryBean, InitializingBean {
+public class GearmanWorkerFactory implements FactoryBean<GearmanWorker>, InitializingBean {
 
 	private Gearman gearman;
-	private List<GearmanServer> gearmanServers;
-	private List<GearmanFunctionBean> gearmanFunctions;
+	private GearmanServer[] servers;
+	private GearmanFunctionBean[] functions;
 	private Integer maximumConcurrency;
 	private Long reconnectPeriod;
 	private GearmanLostConnectionPolicy lostConnectionPolicy;
@@ -32,12 +31,12 @@ public class GearmanWorkerFactory implements FactoryBean, InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		GearmanWorker worker = gearman.createGearmanWorker();
 		
-		if(gearmanServers!=null) for(GearmanServer server : gearmanServers) {
+		if(servers!=null) for(GearmanServer server : servers) {
 			worker.addServer(server);
 		}
 		
-		if(gearmanFunctions!=null) for(GearmanFunctionBean function : gearmanFunctions) {
-			worker.addFunction(function.getFunctionName(), function.getFunction());
+		if(functions!=null) for(GearmanFunctionBean function : functions) {
+			worker.addFunction(function.getName(), function.getFunction());
 		}
 		
 		if(maximumConcurrency!=null) worker.setMaximumConcurrency(maximumConcurrency);
@@ -58,60 +57,35 @@ public class GearmanWorkerFactory implements FactoryBean, InitializingBean {
 		return true;
 	}
 
-	public Gearman getGearman() {
-		return gearman;
-	}
-
 	@Required
 	public void setGearman(Gearman gearman) {
 		this.gearman = gearman;
 	}
 
-	public List<GearmanServer> getGearmanServers() {
-		return gearmanServers;
+	@Required
+	public void setServers(GearmanServer[] servers) {
+		this.servers = servers;
 	}
 
-	public void setGearmanServers(List<GearmanServer> gearmanServers) {
-		this.gearmanServers = gearmanServers;
-	}
-
-	public List<GearmanFunctionBean> getGearmanFunctions() {
-		return gearmanFunctions;
-	}
-
-	public void setGearmanFunctions(List<GearmanFunctionBean> gearmanFunctions) {
-		this.gearmanFunctions = gearmanFunctions;
-	}
-
-	public Integer getMaximumConcurrency() {
-		return maximumConcurrency;
+	@Required
+	public void setFunctions(GearmanFunctionBean[] functions) {
+		this.functions = functions;
 	}
 
 	public void setMaximumConcurrency(Integer maximumConcurrency) {
 		this.maximumConcurrency = maximumConcurrency;
 	}
 
-	public Long getReconnectPeriod() {
-		return reconnectPeriod;
-	}
-
 	public void setReconnectPeriod(Long reconnectPeriod) {
 		this.reconnectPeriod = reconnectPeriod;
-	}
-
-	public GearmanLostConnectionPolicy getLostConnectionPolicy() {
-		return lostConnectionPolicy;
 	}
 
 	public void setLostConnectionPolicy(GearmanLostConnectionPolicy lostConnectionPolicy) {
 		this.lostConnectionPolicy = lostConnectionPolicy;
 	}
 
-	public String getClientId() {
-		return clientId;
-	}
-
 	public void setClientId(String clientId) {
 		this.clientId = clientId;
 	}
+	
 }
